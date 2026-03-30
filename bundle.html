@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finsider 醫療融資系統</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.1.12/umd/Recharts.js"></script>
+  
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+
+  <style>
+    body { margin: 0; padding: 0; background-color: #0B1120; font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang HK', 'Microsoft YaHei', sans-serif; }
+    #root { width: 100vw; height: 100vh; overflow: hidden; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1E293B; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E6C280; }
+    
+    .text-gradient-gold {
+      background: linear-gradient(to right, #E6C280, #D4AF37, #F3E5AB, #D4AF37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+    }
+
+    /* 強制將數字輸入欄的上下箭頭轉為白色並增加與數字的安全距離 */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: inner-spin-button !important;
+      opacity: 1 !important;
+      background-color: #ffffff !important;
+      cursor: pointer;
+      margin-left: 8px; 
+      border-radius: 3px;
+      box-shadow: inset 0 0 0 1px #d4af37; 
+      height: 26px;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+    const { 
+      AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+      ComposedChart, Line, Bar, Legend, ReferenceLine, Step
+    } = Recharts;
+
+    const HeartPulse = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>;
+    const Target = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
+    const Settings2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>;
+    const FileText = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>;
+    const Landmark = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>;
+    const Presentation = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg>;
+    const PiggyBank = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>;
+    const Database = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>;
+    const XIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+    const FileSpreadsheet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 18v-4"/><path d="M3 14h18"/><path d="M3 18h18"/><path d="M9 14v4"/><path d="M9 18v4"/><path d="M3 10V6a2 2 0 0 1 2-2h9l5 5v13a2 2 0 0 1-2 2h-6"/></svg>;
+    const CodeIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>;
+
+    // 核心稀疏資料庫 (已清除錯誤推算數據，僅保留核心節點。強烈建議使用 Excel 貼上功能更新為真實全量數據)
+    const RAW_PLAN_DATA = {
+      'vPrime': { 
+        name: '尊衛您 (寰譽版) - 標準', genderSpecific: false, deductibles: [0, 16000, 25000, 50000, 100000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 10550}, {age: 4, val: 10550}, {age: 5, val: 9693}, {age: 17, val: 9693}, {age: 20, val: 10243}, {age: 30, val: 13830}, {age: 40, val: 16365}, {age: 50, val: 23735}, {age: 60, val: 41772}, {age: 70, val: 71821}, {age: 80, val: 111876}, {age: 100, val: 171750} ], 
+          16000: [ {age: 0, val: 5747}, {age: 4, val: 5747}, {age: 5, val: 4983}, {age: 17, val: 4983}, {age: 20, val: 5282}, {age: 30, val: 6862}, {age: 40, val: 8063}, {age: 50, val: 12584}, {age: 60, val: 21465}, {age: 70, val: 41101}, {age: 80, val: 66089}, {age: 100, val: 86150} ], 
+          25000: [ {age: 0, val: 5125}, {age: 4, val: 5125}, {age: 5, val: 4470}, {age: 17, val: 4470}, {age: 20, val: 4575}, {age: 30, val: 5936}, {age: 40, val: 6976}, {age: 50, val: 10640}, {age: 60, val: 18382}, {age: 70, val: 34956}, {age: 80, val: 56484}, {age: 100, val: 73394} ], 
+          50000: [ {age: 0, val: 4178}, {age: 4, val: 4178}, {age: 5, val: 3624}, {age: 17, val: 3624}, {age: 20, val: 3722}, {age: 30, val: 4467}, {age: 40, val: 5363}, {age: 50, val: 8789}, {age: 60, val: 13292}, {age: 70, val: 30060}, {age: 80, val: 43271}, {age: 100, val: 66692} ], 
+          100000: [ {age: 0, val: 3398}, {age: 4, val: 3398}, {age: 5, val: 3125}, {age: 17, val: 3125}, {age: 20, val: 3189}, {age: 30, val: 3698}, {age: 40, val: 4357}, {age: 50, val: 7018}, {age: 60, val: 10742}, {age: 70, val: 23492}, {age: 80, val: 36914}, {age: 100, val: 51972} ], 
+          250000: [ {age: 0, val: 2856}, {age: 4, val: 2856}, {age: 5, val: 2650}, {age: 17, val: 2650}, {age: 20, val: 2699}, {age: 30, val: 3088}, {age: 40, val: 3565}, {age: 50, val: 5588}, {age: 60, val: 9117}, {age: 70, val: 19361}, {age: 80, val: 28843}, {age: 100, val: 40555} ] 
+        } 
+      },
+      'vPrimeS': { 
+        name: '尊衛您 (寰譽版) - 特等', genderSpecific: false, deductibles: [0, 16000, 25000, 50000, 100000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 12562}, {age: 4, val: 12562}, {age: 5, val: 11541}, {age: 19, val: 11541}, {age: 30, val: 16472}, {age: 40, val: 19494}, {age: 50, val: 28272}, {age: 60, val: 47423}, {age: 70, val: 87868}, {age: 80, val: 139595}, {age: 100, val: 204560} ], 
+          16000: [ {age: 0, val: 6824}, {age: 4, val: 6824}, {age: 5, val: 6272}, {age: 19, val: 6272}, {age: 30, val: 8148}, {age: 40, val: 9576}, {age: 50, val: 14946}, {age: 60, val: 24172}, {age: 70, val: 44205}, {age: 80, val: 71679}, {age: 100, val: 102313} ], 
+          25000: [ {age: 0, val: 6051}, {age: 4, val: 6051}, {age: 5, val: 5403}, {age: 19, val: 5403}, {age: 30, val: 7010}, {age: 40, val: 8240}, {age: 50, val: 12567}, {age: 60, val: 20326}, {age: 70, val: 37422}, {age: 80, val: 60573}, {age: 100, val: 86681} ], 
+          50000: [ {age: 0, val: 4905}, {age: 4, val: 4905}, {age: 5, val: 4481}, {age: 19, val: 4481}, {age: 30, val: 5485}, {age: 40, val: 6298}, {age: 50, val: 10322}, {age: 60, val: 15610}, {age: 70, val: 28358}, {age: 80, val: 46004}, {age: 100, val: 78315} ], 
+          100000: [ {age: 0, val: 3961}, {age: 4, val: 3961}, {age: 5, val: 3779}, {age: 19, val: 3779}, {age: 30, val: 4499}, {age: 40, val: 5080}, {age: 50, val: 8182}, {age: 60, val: 12525}, {age: 70, val: 22032}, {age: 80, val: 35653}, {age: 100, val: 60596} ], 
+          250000: [ {age: 0, val: 3344}, {age: 4, val: 3344}, {age: 5, val: 3205}, {age: 19, val: 3205}, {age: 30, val: 3744}, {age: 40, val: 4177}, {age: 50, val: 6548}, {age: 60, val: 10143}, {age: 70, val: 17372}, {age: 80, val: 28018}, {age: 100, val: 47512} ] 
+        } 
+      },
+      'vTheOne': { 
+        name: '至．衛一 - 標準', genderSpecific: false, deductibles: [0, 25000, 40000, 80000, 120000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 19564}, {age: 4, val: 19564}, {age: 5, val: 19617}, {age: 19, val: 19617}, {age: 30, val: 22108}, {age: 40, val: 27420}, {age: 50, val: 44183}, {age: 60, val: 74230}, {age: 70, val: 132764}, {age: 80, val: 212645}, {age: 100, val: 324558} ], 
+          25000: [ {age: 0, val: 12393}, {age: 4, val: 12393}, {age: 5, val: 12420}, {age: 19, val: 12420}, {age: 30, val: 13970}, {age: 40, val: 17252}, {age: 50, val: 27711}, {age: 60, val: 46414}, {age: 70, val: 82875}, {age: 80, val: 132771}, {age: 100, val: 202533} ], 
+          40000: [ {age: 0, val: 6088}, {age: 4, val: 6088}, {age: 5, val: 6900}, {age: 19, val: 6900}, {age: 30, val: 8029}, {age: 40, val: 10201}, {age: 50, val: 15591}, {age: 60, val: 25489}, {age: 70, val: 47648}, {age: 80, val: 75630}, {age: 100, val: 117721} ], 
+          80000: [ {age: 0, val: 5700}, {age: 4, val: 5700}, {age: 5, val: 6112}, {age: 19, val: 6112}, {age: 30, val: 6891}, {age: 40, val: 8445}, {age: 50, val: 13955}, {age: 60, val: 22535}, {age: 70, val: 39000}, {age: 80, val: 68085}, {age: 100, val: 105383} ], 
+          120000: [ {age: 0, val: 4791}, {age: 4, val: 4791}, {age: 5, val: 5286}, {age: 19, val: 5286}, {age: 30, val: 5631}, {age: 40, val: 6874}, {age: 50, val: 11551}, {age: 60, val: 18147}, {age: 70, val: 31131}, {age: 80, val: 54260}, {age: 100, val: 83912} ], 
+          250000: [ {age: 0, val: 4184}, {age: 4, val: 4184}, {age: 5, val: 4808}, {age: 19, val: 4808}, {age: 30, val: 4996}, {age: 40, val: 6003}, {age: 50, val: 9691}, {age: 60, val: 15515}, {age: 70, val: 26051}, {age: 80, val: 44669}, {age: 100, val: 69008} ] 
+        } 
+      },
+      'vTheOneSP': { 
+        name: '至．衛一 - 標準優越版', genderSpecific: false, deductibles: [0, 25000, 40000, 80000, 120000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 20701}, {age: 4, val: 20701}, {age: 5, val: 20756}, {age: 19, val: 20756}, {age: 30, val: 23396}, {age: 40, val: 29028}, {age: 50, val: 46798}, {age: 60, val: 78645}, {age: 70, val: 140693}, {age: 80, val: 225365}, {age: 100, val: 343993} ], 
+          25000: [ {age: 0, val: 13100}, {age: 4, val: 13100}, {age: 5, val: 13130}, {age: 19, val: 13130}, {age: 30, val: 14772}, {age: 40, val: 18252}, {age: 50, val: 29339}, {age: 60, val: 49165}, {age: 70, val: 87811}, {age: 80, val: 140700}, {age: 100, val: 214649} ], 
+          40000: [ {age: 0, val: 6633}, {age: 4, val: 6633}, {age: 5, val: 7404}, {age: 19, val: 7404}, {age: 30, val: 8473}, {age: 40, val: 10776}, {age: 50, val: 16490}, {age: 60, val: 26982}, {age: 70, val: 50469}, {age: 80, val: 80129}, {age: 100, val: 124746} ], 
+          80000: [ {age: 0, val: 6306}, {age: 4, val: 6306}, {age: 5, val: 6443}, {age: 19, val: 6443}, {age: 30, val: 7269}, {age: 40, val: 8917}, {age: 50, val: 14757}, {age: 60, val: 23851}, {age: 70, val: 44392}, {age: 80, val: 72131}, {age: 100, val: 111667} ], 
+          120000: [ {age: 0, val: 5412}, {age: 4, val: 5412}, {age: 5, val: 5753}, {age: 19, val: 5753}, {age: 30, val: 6035}, {age: 40, val: 7251}, {age: 50, val: 12209}, {age: 60, val: 19200}, {age: 70, val: 35420}, {age: 80, val: 57476}, {age: 100, val: 88908} ], 
+          250000: [ {age: 0, val: 4786}, {age: 4, val: 4786}, {age: 5, val: 5226}, {age: 19, val: 5226}, {age: 30, val: 5431}, {age: 40, val: 6326}, {age: 50, val: 10416}, {age: 60, val: 16557}, {age: 70, val: 29537}, {age: 80, val: 47310}, {age: 100, val: 73109} ] 
+        } 
+      },
+      'vTheOneS': { 
+        name: '至．衛一 - 特等', genderSpecific: false, deductibles: [0, 25000, 40000, 80000, 120000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 24462}, {age: 4, val: 24462}, {age: 5, val: 27826}, {age: 19, val: 27826}, {age: 30, val: 32838}, {age: 40, val: 40105}, {age: 50, val: 58687}, {age: 60, val: 103347}, {age: 70, val: 169307}, {age: 80, val: 270244}, {age: 100, val: 436760} ], 
+          25000: [ {age: 0, val: 14986}, {age: 4, val: 14986}, {age: 5, val: 17009}, {age: 19, val: 17009}, {age: 30, val: 20032}, {age: 40, val: 24418}, {age: 50, val: 35627}, {age: 60, val: 62571}, {age: 70, val: 102397}, {age: 80, val: 163506}, {age: 100, val: 264112} ], 
+          40000: [ {age: 0, val: 8682}, {age: 4, val: 8682}, {age: 5, val: 10980}, {age: 19, val: 10980}, {age: 30, val: 12820}, {age: 40, val: 15147}, {age: 50, val: 21732}, {age: 60, val: 37697}, {age: 70, val: 64111}, {age: 80, val: 101091}, {age: 100, val: 156576} ], 
+          80000: [ {age: 0, val: 7719}, {age: 4, val: 7719}, {age: 5, val: 10222}, {age: 19, val: 10222}, {age: 30, val: 10655}, {age: 40, val: 12234}, {age: 50, val: 18476}, {age: 60, val: 32497}, {age: 70, val: 54025}, {age: 80, val: 87900}, {age: 100, val: 141383} ], 
+          120000: [ {age: 0, val: 6727}, {age: 4, val: 6727}, {age: 5, val: 8586}, {age: 19, val: 8586}, {age: 30, val: 8946}, {age: 40, val: 10254}, {age: 50, val: 15436}, {age: 60, val: 26276}, {age: 70, val: 43344}, {age: 80, val: 70449}, {age: 100, val: 113235} ], 
+          250000: [ {age: 0, val: 6001}, {age: 4, val: 6001}, {age: 5, val: 7534}, {age: 19, val: 7534}, {age: 30, val: 7739}, {age: 40, val: 9090}, {age: 50, val: 13318}, {age: 60, val: 22277}, {age: 70, val: 36447}, {age: 80, val: 58490}, {age: 100, val: 93936} ] 
+        } 
+      },
+      'vFamily': { 
+        name: '醫家保 - 標準', genderSpecific: true, deductibles: [0], 
+        rates: { 
+          'M_0': [ {age: 0, val: 5524}, {age: 4, val: 5524}, {age: 5, val: 4728}, {age: 17, val: 4728}, {age: 18, val: 4647}, {age: 19, val: 3718}, {age: 20, val: 3754}, {age: 30, val: 4917}, {age: 40, val: 5689}, {age: 50, val: 8802}, {age: 60, val: 15246}, {age: 70, val: 26759}, {age: 80, val: 44904}, {age: 83, val: 55970}, {age: 84, val: 57732}, {age: 85, val: 59775}, {age: 86, val: 61779}, {age: 87, val: 65034}, {age: 88, val: 66816}, {age: 89, val: 68804}, {age: 99, val: 96571}, {age: 100, val: 96571} ], 
+          'F_0': [ {age: 0, val: 3841}, {age: 4, val: 3841}, {age: 5, val: 4394}, {age: 17, val: 4394}, {age: 20, val: 4473}, {age: 30, val: 6464}, {age: 40, val: 7542}, {age: 50, val: 10232}, {age: 60, val: 15345}, {age: 70, val: 30737}, {age: 80, val: 41188}, {age: 83, val: 44752}, {age: 84, val: 45999}, {age: 85, val: 47537}, {age: 86, val: 49073}, {age: 87, val: 50755}, {age: 88, val: 51816}, {age: 89, val: 53365}, {age: 99, val: 71825}, {age: 100, val: 71825} ] 
+        } 
+      },
+      'vCANsurance': { 
+        name: '易衛您 - 標準', genderSpecific: true, deductibles: [0], 
+        rates: { 
+          'M_0': [ {age: 0, val: 6646}, {age: 4, val: 6646}, {age: 5, val: 4247}, {age: 19, val: 4247}, {age: 30, val: 5745}, {age: 40, val: 6822}, {age: 50, val: 10592}, {age: 60, val: 18293}, {age: 70, val: 35827}, {age: 80, val: 57439}, {age: 93, val: 94527}, {age: 94, val: 97381}, {age: 95, val: 99829}, {age: 100, val: 111206} ], 
+          'F_0': [ {age: 0, val: 4622}, {age: 4, val: 4622}, {age: 5, val: 5060}, {age: 19, val: 5060}, {age: 30, val: 7552}, {age: 40, val: 9045}, {age: 50, val: 12313}, {age: 60, val: 18412}, {age: 70, val: 31190}, {age: 80, val: 47417}, {age: 93, val: 71671}, {age: 94, val: 73770}, {age: 95, val: 75683}, {age: 100, val: 82710} ] 
+        } 
+      },
+      'vCANsuranceS': { 
+        name: '易衛您 - 特等', genderSpecific: true, deductibles: [0], 
+        rates: { 
+          'M_0': [ {age: 0, val: 9130}, {age: 4, val: 9130}, {age: 5, val: 7883}, {age: 19, val: 7883}, {age: 30, val: 10707}, {age: 40, val: 12876}, {age: 50, val: 21233}, {age: 60, val: 37380}, {age: 70, val: 65018}, {age: 80, val: 97014}, {age: 93, val: 146418}, {age: 94, val: 150921}, {age: 100, val: 168111} ], 
+          'F_0': [ {age: 0, val: 8020}, {age: 4, val: 8020}, {age: 5, val: 7907}, {age: 19, val: 7907}, {age: 30, val: 10893}, {age: 40, val: 13664}, {age: 50, val: 20707}, {age: 60, val: 33784}, {age: 70, val: 54939}, {age: 80, val: 83616}, {age: 93, val: 116252}, {age: 94, val: 119740}, {age: 100, val: 136519} ] 
+        } 
+      },
+      'vBooster': { 
+        name: '倍衛您 - 標準', genderSpecific: false, deductibles: [0, 16000, 25000, 50000, 100000, 180000], 
+        rates: { 
+          0: [ {age: 0, val: 7159}, {age: 4, val: 7159}, {age: 5, val: 6575}, {age: 19, val: 6575}, {age: 30, val: 9211}, {age: 40, val: 11078}, {age: 50, val: 16168}, {age: 60, val: 27336}, {age: 70, val: 50696}, {age: 80, val: 92311}, {age: 100, val: 135483} ], 
+          16000: [ {age: 0, val: 4935}, {age: 4, val: 4935}, {age: 5, val: 5185}, {age: 19, val: 5185}, {age: 30, val: 6411}, {age: 40, val: 7767}, {age: 50, val: 10554}, {age: 60, val: 18158}, {age: 70, val: 33647}, {age: 80, val: 60053}, {age: 100, val: 87113} ], 
+          25000: [ {age: 0, val: 4422}, {age: 4, val: 4422}, {age: 5, val: 4351}, {age: 19, val: 4351}, {age: 30, val: 5506}, {age: 40, val: 6649}, {age: 50, val: 9485}, {age: 60, val: 15905}, {age: 70, val: 29471}, {age: 80, val: 52569}, {age: 100, val: 75476} ], 
+          50000: [ {age: 0, val: 2872}, {age: 4, val: 2872}, {age: 5, val: 2770}, {age: 19, val: 2770}, {age: 30, val: 3368}, {age: 40, val: 4001}, {age: 50, val: 6874}, {age: 60, val: 10590}, {age: 70, val: 24633}, {age: 80, val: 40326}, {age: 100, val: 69060} ], 
+          100000: [ {age: 0, val: 2698}, {age: 4, val: 2698}, {age: 5, val: 2458}, {age: 19, val: 2458}, {age: 30, val: 2932}, {age: 40, val: 3482}, {age: 50, val: 5599}, {age: 60, val: 8481}, {age: 70, val: 19086}, {age: 80, val: 31248}, {age: 100, val: 53512} ], 
+          180000: [ {age: 0, val: 2438}, {age: 4, val: 2438}, {age: 5, val: 2220}, {age: 19, val: 2220}, {age: 30, val: 2638}, {age: 40, val: 3122}, {age: 50, val: 5039}, {age: 60, val: 7632}, {age: 70, val: 17177}, {age: 80, val: 28123}, {age: 100, val: 48160} ] 
+        } 
+      }
+    };
+
+    // 指數平滑演算法
+    const buildFullArray = (sparsePoints) => {
+      const arr = [];
+      sparsePoints.sort((a, b) => a.age - b.age);
+      for (let age = 0; age <= 100; age++) {
+        const exact = sparsePoints.find(p => p.age === age);
+        if (exact) {
+          arr.push({age, val: exact.val});
+          continue;
+        }
+        let lower = sparsePoints[0];
+        let upper = sparsePoints[sparsePoints.length - 1];
+        
+        for (let i = 0; i < sparsePoints.length - 1; i++) {
+            if (sparsePoints[i].age < age && sparsePoints[i+1].age > age) {
+                lower = sparsePoints[i];
+                upper = sparsePoints[i+1];
+                break;
+            }
+        }
+
+        if (age <= lower.age) { 
+            arr.push({age, val: lower.val}); 
+        } else if (age >= upper.age) { 
+            arr.push({age, val: upper.val}); 
+        } else {
+            // 平滑過渡增長
+            const ratio = (age - lower.age) / (upper.age - lower.age);
+            const val = Math.round(lower.val * Math.pow(upper.val / lower.val, ratio));
+            arr.push({age, val});
+        }
+      }
+      return arr;
+    };
+
+    const GENERATED_PLAN_DATA = {};
+    for (let planKey in RAW_PLAN_DATA) {
+        GENERATED_PLAN_DATA[planKey] = { ...RAW_PLAN_DATA[planKey], rates: {} };
+        for (let rateKey in RAW_PLAN_DATA[planKey].rates) {
+            GENERATED_PLAN_DATA[planKey].rates[rateKey] = buildFullArray(RAW_PLAN_DATA[planKey].rates[rateKey]);
+        }
+    }
+
+    function App() {
+      const [currentStep, setCurrentStep] = useState(1);
+      
+      // 動態數據庫 State
+      const [planData, setPlanData] = useState(GENERATED_PLAN_DATA);
+      const [isEditingData, setIsEditingData] = useState(false);
+      const [editorMode, setEditorMode] = useState('excel'); 
+      
+      const [editPlanId, setEditPlanId] = useState('vPrime');
+      const [editRateKey, setEditRateKey] = useState('0');
+      const [excelText, setExcelText] = useState("");
+      const [parseMessage, setParseMessage] = useState({ text: "", type: "" });
+      const [jsonText, setJsonText] = useState("");
+      const [jsonError, setJsonError] = useState("");
+
+      const getPremium = (planId, deductible, gender, age) => {
+        const plan = planData[planId];
+        if (!plan) return 0;
+        const rateKey = plan.genderSpecific ? `${gender}_${deductible}` : `${deductible}`;
+        const rates = plan.rates[rateKey] || plan.rates[Object.keys(plan.rates)[0]]; 
+        const pt = rates.find(r => r.age === age);
+        return pt ? pt.val : 0;
+      };
+
+      // --- 階段 1 & 2 核心參數 ---
+      const [currentAge, setCurrentAge] = useState(28); 
+      const [gender, setGender] = useState('M');
+      const [coverageTill, setCoverageTill] = useState(90); 
+      const [bundleStartAge, setBundleStartAge] = useState(62);
+      const [usdRate, setUsdRate] = useState(7.8);
+      const [medicalInflation, setMedicalInflation] = useState(3.0);
+      
+      const [plan1, setPlan1] = useState('vPrime');
+      const [ded1, setDed1] = useState(0);
+      const [enablePlan1B, setEnablePlan1B] = useState(false);
+      const [plan1B, setPlan1B] = useState('vFamily');
+      const [ded1B, setDed1B] = useState(0);
+
+      const [enableSwitch, setEnableSwitch] = useState(true);
+      const [switchAge, setSwitchAge] = useState(65);
+      const [plan2, setPlan2] = useState('vPrime');
+      const [ded2, setDed2] = useState(0);
+      const [enablePlan2B, setEnablePlan2B] = useState(false);
+      const [plan2B, setPlan2B] = useState('vFamily');
+      const [ded2B, setDed2B] = useState(0);
+
+      // --- 階段 3 參數 ---
+      const [savingsPlanName, setSavingsPlanName] = useState('盈聚天下計劃');
+      const [premiumTerm, setPremiumTerm] = useState(5);
+      const [annualPremiumUSD, setAnnualPremiumUSD] = useState(16000);
+      const [promoDiscount1Pct, setPromoDiscount1Pct] = useState(0); 
+      const [promoDiscount2Pct, setPromoDiscount2Pct] = useState(0);  
+      const [projectedValueUSD, setProjectedValueUSD] = useState(203307);
+      const [savingsExchangeRate, setSavingsExchangeRate] = useState(7.8);
+
+      const handlePlanChange = (e, setPlan, setDed) => {
+        const p = e.target.value;
+        setPlan(p);
+        setDed(planData[p].deductibles[0]);
+      };
+
+      const openDataEditor = () => {
+        setJsonText(JSON.stringify(planData, null, 2));
+        setParseMessage({ text: "", type: "" });
+        setJsonError("");
+        setEditPlanId('vPrime');
+        setEditRateKey('0');
+        updateExcelText('vPrime', '0', planData);
+        setIsEditingData(true);
+      };
+
+      const updateExcelText = (pid, rk, data = planData) => {
+        const rates = data[pid]?.rates[rk] || [];
+        setExcelText(rates.map(r => `${r.age}\t${r.val}`).join('\n'));
+      };
+
+      const handleEditPlanChange = (e) => {
+        const pid = e.target.value;
+        setEditPlanId(pid);
+        const firstKey = Object.keys(planData[pid].rates)[0];
+        setEditRateKey(firstKey);
+        updateExcelText(pid, firstKey, planData);
+      };
+
+      const handleEditRateChange = (e) => {
+        const rk = e.target.value;
+        setEditRateKey(rk);
+        updateExcelText(editPlanId, rk, planData);
+      };
+
+      const handleApplyExcel = () => {
+        const lines = excelText.split('\n');
+        const newRates = [];
+        for(let i=0; i<lines.length; i++) {
+            const line = lines[i].trim();
+            if(!line) continue;
+            const parts = line.split(/\t+/);
+            let age, val;
+            if (parts.length >= 2) {
+                age = parseInt(parts[0].trim());
+                val = parseFloat(parts[1].trim().replace(/,/g, '')); 
+            } else {
+                const spaceParts = line.split(/\s+/);
+                if (spaceParts.length >= 2) {
+                    age = parseInt(spaceParts[0].trim());
+                    val = parseFloat(spaceParts[spaceParts.length-1].trim().replace(/,/g, ''));
+                }
+            }
+
+            if (age !== undefined && val !== undefined && !isNaN(age) && !isNaN(val)) {
+                newRates.push({age, val});
+            }
+        }
+        
+        if (newRates.length === 0) {
+            setParseMessage({ text: "錯誤：未能解析出有效數據。請確保格式為「年齡[Tab]保費」。", type: "error" });
+            return;
+        }
+        
+        const fullArray = buildFullArray(newRates.sort((a,b) => a.age - b.age));
+        
+        setPlanData(prev => ({
+            ...prev,
+            [editPlanId]: {
+                ...prev[editPlanId],
+                rates: {
+                    ...prev[editPlanId].rates,
+                    [editRateKey]: fullArray
+                }
+            }
+        }));
+        setParseMessage({ text: `✅ 成功精確更新 ${planData[editPlanId].name} (${editRateKey}) 的完整數據！`, type: "success" });
+        setTimeout(() => setParseMessage({ text: "", type: "" }), 3000);
+      };
+
+      useEffect(() => {
+          if (isEditingData) setJsonText(JSON.stringify(planData, null, 2));
+      }, [planData, isEditingData]);
+
+      const saveJsonPlanData = () => {
+        try {
+          const parsed = JSON.parse(jsonText);
+          setPlanData(parsed);
+          setJsonError("✅ JSON 更新成功！");
+          setTimeout(() => setJsonError(""), 3000);
+        } catch (err) {
+          setJsonError("JSON 格式錯誤，請檢查您的輸入！ (" + err.message + ")");
+        }
+      };
+
+      const simulationData = useMemo(() => {
+        const i = medicalInflation / 100;
+        const startAge = bundleStartAge; 
+        
+        let clientBasic = 0, clientInflated = 0;
+        let hedgedBasic = 0, hedgedInflated = 0;
+        const futurePremiums = [];
+
+        for (let age = currentAge; age <= coverageTill; age++) {
+          const yearsFromNow = age - currentAge;
+          let activePlanId = plan1;
+          let activeDed = ded1;
+          let activePlanIdB = enablePlan1B ? plan1B : null;
+          let activeDedB = enablePlan1B ? ded1B : null;
+
+          if (enableSwitch && age >= switchAge) {
+            activePlanId = plan2;
+            activeDed = ded2;
+            activePlanIdB = enablePlan2B ? plan2B : null;
+            activeDedB = enablePlan2B ? ded2B : null;
+          }
+
+          let basePremium = getPremium(activePlanId, activeDed, gender, age);
+          if (activePlanIdB) {
+            basePremium += getPremium(activePlanIdB, activeDedB, gender, age);
+          }
+          
+          const inflatedPremium = basePremium * Math.pow(1 + i, yearsFromNow);
+          
+          futurePremiums.push({ age, base: basePremium, premium: inflatedPremium });
+          
+          if (age < startAge) {
+            clientBasic += basePremium;
+            clientInflated += inflatedPremium;
+          } else {
+            hedgedBasic += basePremium;
+            hedgedInflated += inflatedPremium;
+          }
+        }
+
+        const smartBlocks = [];
+        let currStart = startAge;
+        while(currStart <= coverageTill) {
+          let currEnd = Math.min(currStart + 9, coverageTill);
+          let blockTotal = 0;
+          let pStart = 0;
+          let pEnd = 0;
+          for(let a = currStart; a <= currEnd; a++) {
+            const prem = futurePremiums.find(x => x.age === a)?.premium || 0;
+            blockTotal += prem;
+            if (a === currStart) pStart = prem;
+            if (a === currEnd) pEnd = prem;
+          }
+          let yearsInBlock = currEnd - currStart + 1;
+          
+          let g = 0;
+          if (yearsInBlock > 1 && pStart > 0) {
+              g = Math.pow(pEnd / pStart, 1 / (yearsInBlock - 1)) - 1;
+          }
+          
+          let roundedG = Math.round(g * 1000) / 1000; 
+          let firstYearW = 0;
+          if (roundedG <= 0 || isNaN(roundedG)) {
+              firstYearW = blockTotal / yearsInBlock;
+              roundedG = 0;
+          } else {
+              firstYearW = blockTotal * roundedG / (Math.pow(1 + roundedG, yearsInBlock) - 1);
+          }
+          
+          smartBlocks.push({
+            startYear: currStart - currentAge + 1,
+            endYear: currEnd - currentAge + 1,
+            startAge: currStart,
+            endAge: currEnd,
+            hkd: Math.round(firstYearW),
+            usd: Math.round(firstYearW / usdRate),
+            incrementRate: roundedG * 100
+          });
+          currStart = currEnd + 1;
+        }
+
+        const chartData = [];
+        for (let age = currentAge; age <= coverageTill; age++) {
+          const p = futurePremiums.find(d => d.age === age)?.premium || 0;
+          let dataPoint = { age, '預期醫療保費': Math.round(p) };
+
+          if (age >= startAge) {
+             let block = smartBlocks.find(b => age >= b.startAge && age <= b.endAge);
+             if (block) {
+                 const yearInBlock = age - block.startAge;
+                 const currentW = block.hkd * Math.pow(1 + (block.incrementRate / 100), yearInBlock);
+                 dataPoint['醫療儲備提取'] = Math.round(currentW);
+             } else {
+                 dataPoint['醫療儲備提取'] = 0;
+             }
+          } else {
+             dataPoint['醫療儲備提取'] = 0;
+          }
+          chartData.push(dataPoint);
+        }
+
+        const totalMedicalWithdrawal_Infographic = Math.round(hedgedInflated);
+
+        return {
+          chartData,
+          smartBlocks,
+          clientBasic: Math.round(clientBasic),
+          clientInflated: Math.round(clientInflated),
+          hedgedBasic: Math.round(hedgedBasic),
+          hedgedInflated: Math.round(hedgedInflated),
+          totalBasic: Math.round(clientBasic + hedgedBasic),
+          totalInflated: Math.round(clientInflated + hedgedInflated),
+          totalMedicalWithdrawal_Infographic,
+          startAge
+        };
+      }, [currentAge, coverageTill, bundleStartAge, medicalInflation, plan1, ded1, enablePlan1B, plan1B, ded1B, enableSwitch, switchAge, plan2, ded2, enablePlan2B, plan2B, ded2B, gender, usdRate, planData]);
+
+      const formatCurrency = (val) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(val);
+
+      const renderComparisonChart = () => {
+          return (
+            <div className="w-full h-full flex flex-col relative px-6 pb-4">
+              <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
+                  <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
+                      ← 返回修改
+                  </button>
+              </div>
+              
+              <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-8">
+                  
+                  <div className="flex justify-between items-center mb-6 shrink-0">
+                      <div>
+                          <h1 className="text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide">
+                              終身醫療保費 vs 醫療儲備提取展示
+                          </h1>
+                          <p className="text-[#a8b8d0] mt-2 font-bold tracking-wide">
+                              視覺化驗證：每一年的提取金額是否能完美覆蓋當年的通脹醫療保費
+                          </p>
+                      </div>
+                      <div className="flex gap-4">
+                          <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center">
+                              <span className="text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
+                              <span className="text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
+                          </div>
+                          <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center">
+                              <span className="text-xs text-[#a8b8d0] mb-1">融資啟動年齡</span>
+                              <span className="text-lg font-bold text-[#E6C280]">{bundleStartAge} 歲</span>
+                          </div>
+                      </div>
+                  </div>
+  
+                  <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-6 shadow-inner relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                          <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                              <defs>
+                                  <linearGradient id="colorPremium" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
+                                      <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                                  </linearGradient>
+                                  <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
+                                  </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                              <XAxis 
+                                  dataKey="age" 
+                                  stroke="#a8b8d0" 
+                                  tick={{ fill: '#a8b8d0', fontSize: 14 }} 
+                                  tickMargin={10}
+                                  minTickGap={20}
+                              />
+                              <YAxis 
+                                  yAxisId="left" 
+                                  stroke="#a8b8d0" 
+                                  tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} 
+                                  tick={{ fontSize: 14 }} 
+                                  width={80} 
+                              />
+                              <Tooltip 
+                                  contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '12px', padding: '12px' }} 
+                                  formatter={(value, name) => [formatCurrency(value), name === '預期醫療保費' ? '預期醫療保費 (計通脹)' : '醫療儲備提取']} 
+                                  labelFormatter={(label) => `實際年齡: ${label}歲`} 
+                                  itemStyle={{ fontSize: '14px', marginTop: '4px' }}
+                              />
+                              <Legend 
+                                  verticalAlign="top" 
+                                  height={40} 
+                                  wrapperStyle={{ color: '#d4af37', fontSize: 14, fontWeight: 'bold' }}
+                              />
+                              
+                              {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
+                                  <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '🔄 轉換計劃', fill: '#f3e5ab', fontSize: 13, offset: 10 }} />
+                              )}
+                              <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '🚀 啟動提取', fill: '#E6C280', fontSize: 13, offset: 10 }} />
+                              
+                              <Area 
+                                  type="monotone" 
+                                  dataKey="預期醫療保費" 
+                                  fill="url(#colorPremium)" 
+                                  stroke="#d4af37" 
+                                  strokeWidth={4} 
+                                  yAxisId="left" 
+                                  name="預期醫療保費" 
+                                  activeDot={{ r: 6, fill: '#E6C280', stroke: '#fff', strokeWidth: 2 }}
+                              />
+                              <Bar 
+                                  dataKey="醫療儲備提取" 
+                                  fill="url(#colorWithdrawal)" 
+                                  yAxisId="left" 
+                                  name="醫療儲備提取" 
+                                  barSize={8}
+                                  radius={[4, 4, 0, 0]}
+                              />
+                          </ComposedChart>
+                      </ResponsiveContainer>
+                  </div>
+              </div>
+            </div>
+          );
+      };
+
+      const renderInfographic = () => {
+        const { startAge, totalMedicalWithdrawal_Infographic } = simulationData;
+        const withdrawalYears = coverageTill - startAge + 1;
+        const baseYear = new Date().getFullYear();
+        const endYear = baseYear + (coverageTill - currentAge);
+        
+        const annualPremiumHKD = annualPremiumUSD * savingsExchangeRate;
+        const discount1USD = annualPremiumUSD * (promoDiscount1Pct / 100);
+        const discount2USD = annualPremiumUSD * (promoDiscount2Pct / 100);
+        const totalDiscountUSD = discount1USD + discount2USD;
+        
+        const totalDiscountHKD = totalDiscountUSD * savingsExchangeRate;
+        const projectedValueHKD = projectedValueUSD * savingsExchangeRate;
+        
+        const netPremiumPaidUSD = (annualPremiumUSD * premiumTerm) - totalDiscountUSD;
+        const netPremiumPaidHKD = netPremiumPaidUSD * savingsExchangeRate;
+        const totalReturnConverted = totalMedicalWithdrawal_Infographic + projectedValueHKD;
+        const leverageMultiplier = netPremiumPaidHKD > 0 ? (totalReturnConverted / netPremiumPaidHKD).toFixed(1) : 0;
+        
+        const savingsPercentage = totalMedicalWithdrawal_Infographic > 0 && totalMedicalWithdrawal_Infographic > netPremiumPaidHKD
+            ? (((totalMedicalWithdrawal_Infographic - netPremiumPaidHKD) / totalMedicalWithdrawal_Infographic) * 100).toFixed(0)
+            : 0;
+
+        return (
+          <div className="w-full h-full flex flex-col relative px-6 pb-4">
+            
+            <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
+                <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
+                    ← 返回修改
+                </button>
+            </div>
+
+            <div className="flex-1 w-full bg-[#fdfbf7] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500">
+
+                <div className="h-4 bg-gradient-to-r from-[#111] via-[#d4af37] to-[#111] w-full shrink-0"></div>
+
+                <div className="flex flex-col items-center justify-center pt-8 pb-4 shrink-0">
+                   <div className="bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#d4af37] text-[#111] px-6 py-1.5 rounded-full font-bold text-sm mb-4 shadow-sm uppercase tracking-widest border border-[#d4af37]/50">
+                     醫療保費通脹預設: {medicalInflation}% | 貨幣單位: HKD
+                   </div>
+                   <h1 className="text-4xl lg:text-5xl font-extrabold text-[#111] tracking-wide text-center">
+                     專屬財富傳承與醫療融資藍圖
+                   </h1>
+                   <p className="text-xl text-slate-600 mt-3 font-bold tracking-wide">只需投入短期儲蓄，如果想 {startAge} 歲起由紅利代繳終身醫療保費</p>
+                </div>
+
+                <div className="w-[90%] max-w-6xl mx-auto bg-gradient-to-r from-[#0f141e] via-[#1a2233] to-[#0f141e] border border-[#d4af37]/40 rounded-3xl p-5 shrink-0 flex items-center justify-between shadow-2xl relative overflow-hidden mt-3">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-[#d4af37]"></div>
+                    
+                    <div className="flex flex-col items-center justify-center flex-1">
+                        <span className="text-[#d4af37] font-bold text-sm mb-1 uppercase tracking-widest opacity-80">總保費投入 (Net)</span>
+                        <span className="text-4xl font-black text-white drop-shadow-sm">${formatCurrency(netPremiumPaidHKD)}</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center shrink-0 px-4">
+                        <span className="bg-[#111] text-[#d4af37] font-black text-xl px-4 py-2 rounded-full border border-[#d4af37]/50 shadow-[0_0_15px_rgba(212,175,55,0.2)]">VS</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center flex-1 pr-4">
+                        <span className="text-[#d4af37] font-bold text-sm mb-1 uppercase tracking-widest opacity-80">預期總回報 (醫療提取 + 傳承)</span>
+                        <span className="text-4xl font-black text-white drop-shadow-sm">${formatCurrency(totalReturnConverted)}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mr-2 z-10">
+                        <div className="bg-gradient-to-br from-[#1F3C3D] to-[#112222] text-white px-5 py-3 rounded-2xl flex flex-col items-center shadow-lg border border-[#2A5052]">
+                            <span className="text-xs font-bold text-emerald-400 mb-1 tracking-widest uppercase">節省醫療保費</span>
+                            <span className="text-4xl font-black drop-shadow-md">{savingsPercentage}%</span>
+                        </div>
+                        <div className="bg-gradient-to-br from-[#E6C280] via-[#D4AF37] to-[#AA8222] text-[#111] px-5 py-3 rounded-2xl flex flex-col items-center shadow-lg border border-[#FFF0C0]/50">
+                            <span className="text-xs font-bold opacity-80 mb-1 tracking-widest uppercase">財富槓桿效應</span>
+                            <span className="text-4xl font-black drop-shadow-md">{leverageMultiplier}x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 w-[92%] max-w-7xl mx-auto flex items-stretch justify-center gap-6 py-8 min-h-0">
+                    
+                    {/* 卡片 1 (鉑金藍 - 淺色尊貴版) */}
+                    <div className="flex-1 bg-gradient-to-b from-sky-50 to-white border border-sky-200/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-sky-700 via-sky-800 to-sky-700 text-white text-center py-4 font-black text-xl tracking-widest border-b border-sky-200/50 shadow-md backdrop-blur-sm">
+                            STEP 1: 建立儲備
+                        </div>
+                        <div className="p-6 flex flex-col items-center justify-center flex-1 text-center">
+                            <Target className="w-14 h-14 text-sky-500 mb-4 opacity-90" />
+                            <div className="text-lg font-bold text-slate-500 mb-2">供款年期: <span className="text-sky-800 text-2xl mx-1">{premiumTerm}</span> 年</div>
+                            <div className="flex flex-col items-center justify-center mb-5">
+                                <div className="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-700 via-slate-800 to-sky-700 drop-shadow-sm leading-none whitespace-nowrap">
+                                    ${formatCurrency(annualPremiumHKD)}
+                                </div>
+                                <div className="text-sky-800 font-bold tracking-widest text-sm mt-3 bg-sky-100 px-4 py-1 rounded-full border border-sky-200">
+                                    / 年
+                                </div>
+                            </div>
+                            <div className="bg-sky-50/80 px-6 py-3 rounded-xl border border-sky-100 text-sm text-slate-500 shadow-inner w-full mt-auto">
+                                儲蓄計劃方案：<br/><span className="font-bold text-sky-800 text-xl tracking-wide leading-relaxed">{savingsPlanName}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </div>
+
+                    {/* 卡片 2 (翡翠綠 - 淺色尊貴版) */}
+                    <div className="flex-1 bg-gradient-to-b from-emerald-50/80 to-white border border-emerald-200/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-600 text-white text-center py-4 font-black text-xl tracking-widest border-b border-emerald-200/50 shadow-md backdrop-blur-sm">
+                            STEP 2: 支付保費
+                        </div>
+                        <div className="p-6 flex flex-col items-center justify-center flex-1 text-center">
+                            <HeartPulse className="w-14 h-14 text-emerald-500 mb-4 opacity-90" />
+                            <div className="text-lg font-bold text-slate-500 mb-2">終身醫療提取: <span className="text-emerald-800 text-2xl mx-1">{withdrawalYears}</span> 年</div>
+                            <div className="flex flex-col items-center justify-center mb-5">
+                                <div className="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-emerald-900 to-emerald-600 drop-shadow-sm leading-none whitespace-nowrap">
+                                    ${formatCurrency(totalMedicalWithdrawal_Infographic)}
+                                </div>
+                                <div className="text-emerald-800 font-bold tracking-widest text-sm mt-3 bg-emerald-100 px-4 py-1 rounded-full border border-emerald-200">
+                                    總額
+                                </div>
+                            </div>
+                            <div className="bg-emerald-50/80 px-6 py-3 rounded-xl border border-emerald-100 text-sm text-slate-500 shadow-inner w-full mt-auto">
+                                提取覆蓋 (實際年齡)：<br/><span className="font-bold text-emerald-800 text-xl tracking-wide leading-relaxed">{startAge}歲 至 {coverageTill}歲</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </div>
+
+                    {/* 卡片 3 (香檳金 - 淺色尊貴版) */}
+                    <div className="flex-1 bg-gradient-to-b from-amber-50/50 to-white border border-[#d4af37]/30 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-[#c5a059] via-[#aa8222] to-[#c5a059] text-white text-center py-4 font-black text-xl tracking-widest border-b border-[#d4af37]/30 shadow-md backdrop-blur-sm">
+                            STEP 3: 財富傳承
+                        </div>
+                        <div className="p-6 flex flex-col items-center justify-center flex-1 text-center">
+                            <PiggyBank className="w-14 h-14 text-[#c5a059] mb-4 opacity-90" />
+                            <div className="text-lg font-bold text-slate-500 mb-2">保障期滿年份: <span className="text-[#aa8222] text-2xl mx-1">{endYear}</span> 年</div>
+                            <div className="flex flex-col items-center justify-center mb-5">
+                                <div className="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#c5a059] via-[#7a5c13] to-[#c5a059] drop-shadow-sm leading-none whitespace-nowrap">
+                                    ${formatCurrency(projectedValueHKD)}
+                                </div>
+                                <div className="text-[#aa8222] font-bold tracking-widest text-sm mt-3 bg-[#fdf8ed] px-4 py-1 rounded-full border border-[#d4af37]/30">
+                                    餘額
+                                </div>
+                            </div>
+                            <div className="bg-[#fffaf0]/80 px-6 py-3 rounded-xl border border-[#e6c280]/30 text-sm text-slate-500 shadow-inner w-full mt-auto">
+                                期滿時對應實際年齡：<br/><span className="font-bold text-[#aa8222] text-xl tracking-wide leading-relaxed">{coverageTill}歲</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="w-[85%] max-w-6xl mx-auto h-28 relative flex items-center justify-between shrink-0 mb-6">
+                    <div className="absolute top-[40%] left-[5%] right-[5%] h-1 bg-gradient-to-r from-[#d4af37]/20 via-[#d4af37] to-[#d4af37]/20 -translate-y-1/2 z-0 rounded-full opacity-80"></div>
+                    
+                    <div className="relative z-10 flex flex-col items-center w-1/4">
+                        <div className="w-6 h-6 rounded-full bg-[#1a1f2b] border-[4px] border-[#d4af37] shadow-lg"></div>
+                        <div className="mt-3 text-center">
+                            <div className="font-extrabold text-slate-800 text-xl">{currentAge}歲</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">現在 ({baseYear})</div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center w-1/4">
+                        <div className="w-6 h-6 rounded-full bg-[#1a1f2b] border-[4px] border-[#d4af37] shadow-lg"></div>
+                        <div className="mt-3 text-center">
+                            <div className="font-extrabold text-[#8b6508] text-xl">{currentAge + premiumTerm}歲</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">供款期滿 ({baseYear + premiumTerm})</div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center w-1/4">
+                        <div className="w-6 h-6 rounded-full bg-[#1a1f2b] border-[4px] border-[#d4af37] shadow-lg"></div>
+                        <div className="mt-3 text-center">
+                            <div className="font-extrabold text-[#8b6508] text-xl">{startAge}歲</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">啟動提取 ({baseYear + startAge - currentAge})</div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center w-1/4">
+                        <div className="w-6 h-6 rounded-full bg-[#d4af37] border-[4px] border-[#1a1f2b] shadow-lg"></div>
+                        <div className="mt-3 text-center">
+                            <div className="font-extrabold text-slate-800 text-xl">{coverageTill}歲</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">期滿傳承 ({endYear})</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className={`w-full h-screen flex flex-col justify-center items-center overflow-hidden transition-colors duration-500 ${currentStep >= 4 ? 'bg-[#0B1120]' : 'bg-[#0B1120]'}`}>
+          
+          {/* --- 數據庫編輯器 Modal --- */}
+          {isEditingData && (
+            <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
+                <div className="bg-[#0f141e] border border-[#d4af37]/50 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.2)] w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center p-5 border-b border-[#d4af37]/20 bg-[#1a1f2b]">
+                        <h2 className="text-xl font-bold text-[#d4af37] flex items-center gap-2"><Database className="w-6 h-6" /> 編輯保費數據庫</h2>
+                        <button onClick={() => setIsEditingData(false)} className="text-slate-400 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></button>
+                    </div>
+                    
+                    <div className="flex border-b border-[#d4af37]/20 bg-[#0f141e]">
+                        <button onClick={() => setEditorMode('excel')} className={`flex-1 py-3 font-bold flex items-center justify-center gap-2 ${editorMode === 'excel' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
+                            <FileSpreadsheet className="w-5 h-5" /> Excel 全量貼上模式
+                        </button>
+                        <button onClick={() => setEditorMode('json')} className={`flex-1 py-3 font-bold flex items-center justify-center gap-2 ${editorMode === 'json' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
+                            <CodeIcon className="w-5 h-5" /> 進階 JSON 編輯
+                        </button>
+                    </div>
+
+                    {editorMode === 'excel' ? (
+                        <div className="flex-1 p-5 overflow-hidden flex flex-col relative gap-4 bg-[#0a0d14]">
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="text-xs text-[#a8b8d0] mb-1 block">選擇醫療計劃</label>
+                                    <select value={editPlanId} onChange={handleEditPlanChange} className="w-full bg-[#1a1f2b] text-[#f3e5ab] font-bold rounded px-3 py-2 border border-[#d4af37]/40 outline-none focus:border-[#d4af37]">
+                                        {Object.entries(planData).map(([key, data]) => <option key={key} value={key}>{data.name}</option>)}
+                                    </select>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-xs text-[#a8b8d0] mb-1 block">選擇自付費/類別</label>
+                                    <select value={editRateKey} onChange={handleEditRateChange} className="w-full bg-[#1a1f2b] text-[#f3e5ab] font-bold rounded px-3 py-2 border border-[#d4af37]/40 outline-none focus:border-[#d4af37]">
+                                        {Object.keys(planData[editPlanId]?.rates || {}).map(k => <option key={k} value={k}>{k.includes('_') ? k : `$${Number(k).toLocaleString()} 自付`}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div className="text-sm text-[#d4af37] bg-[#d4af37]/10 p-3 rounded-lg border border-[#d4af37]/20">
+                                💡 <b>終極精確提示：</b>為了讓系統不再使用任何插值或平均法，請直接從您的保險 Excel 複製 <b>實際年齡 (0-100)</b> 與 <b>對應保費</b> 這兩欄，全量貼上於下方。系統會將 101 年的數據 100% 絕對鎖定！
+                            </div>
+
+                            <textarea 
+                                value={excelText} 
+                                onChange={(e) => setExcelText(e.target.value)}
+                                placeholder="請在此貼上 0-100 歲完整的 Excel 數據..."
+                                className="flex-1 bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none whitespace-pre"
+                                spellCheck="false"
+                            ></textarea>
+
+                            <div className="flex justify-between items-center mt-2">
+                                <div className="font-bold text-sm">
+                                    {parseMessage.text && <span className={parseMessage.type === 'error' ? 'text-red-400' : 'text-emerald-400'}>{parseMessage.text}</span>}
+                                </div>
+                                <button onClick={handleApplyExcel} className="bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-6 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">
+                                    覆蓋並套用至此類別
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex flex-col relative bg-[#0a0d14]">
+                            <div className="p-4 bg-[#1a1f2b]/50 text-sm text-[#a8b8d0] border-b border-[#d4af37]/10">
+                                <p>您可以在下方直接編輯所有醫療計劃的保費數據。格式為 JSON。若要增加新計劃，請依照現有結構複製並修改 <code>rates</code> 中的年齡與保費。</p>
+                            </div>
+                            <div className="flex-1 p-5 overflow-hidden flex flex-col relative">
+                                {jsonError && <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-[#1a1f2b] text-[#d4af37] border border-[#d4af37] px-4 py-2 rounded shadow-lg z-10 font-bold">{jsonError}</div>}
+                                <textarea 
+                                    value={jsonText} 
+                                    onChange={(e) => setJsonText(e.target.value)}
+                                    className="w-full h-full bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none"
+                                    spellCheck="false"
+                                ></textarea>
+                            </div>
+                            <div className="p-5 border-t border-[#d4af37]/20 bg-[#1a1f2b] flex justify-end gap-3">
+                                <button onClick={saveJsonPlanData} className="bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-8 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">儲存 JSON 變更</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+          )}
+
+          <div className={`relative w-full max-w-[1920px] aspect-video flex flex-col overflow-hidden transition-all duration-500 ${currentStep >= 4 ? 'bg-transparent p-0 border-0 shadow-none' : 'bg-[#0B1120] p-6 box-border border border-[#d4af37]/20 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.05)]'}`}>
+            
+            {/* --- 階段 1-3 的 UI --- */}
+            {currentStep < 4 && (
+              <React.Fragment>
+                {/* 頂部 Stepper 與 控制列 */}
+                <div className="flex justify-between items-center w-full bg-[#1a1f2b] rounded-xl p-2 mb-5 border border-[#d4af37]/20 shadow-md shrink-0">
+                    <div className="flex w-4/5">
+                        {[
+                            { id: 1, label: "階段 1: 醫療參數" },
+                            { id: 2, label: "階段 2: SMART提取表" },
+                            { id: 3, label: "階段 3: 儲蓄建議書配對" },
+                            { id: 4, label: "階段 4: 生成尊貴圖表" },
+                            { id: 5, label: "階段 5: 提取對比圖" }
+                        ].map(step => (
+                            <button
+                                key={step.id}
+                                onClick={() => setCurrentStep(step.id)}
+                                className={`flex-1 py-2 text-[15px] font-bold rounded-lg transition-all ${currentStep === step.id ? 'bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] shadow-md' : 'text-slate-400 hover:text-[#d4af37] hover:bg-[#0f141e]'}`}
+                            >
+                                {step.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="pr-4 pl-2">
+                        <button onClick={openDataEditor} className="flex items-center gap-2 text-[#d4af37] hover:text-[#f3e5ab] text-sm font-bold bg-[#0a0d14] px-4 py-2 rounded-lg border border-[#d4af37]/30 transition-colors shadow-sm whitespace-nowrap">
+                            <Database className="w-4 h-4" /> 編輯數據庫
+                        </button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-12 gap-5 h-full overflow-hidden">
+                  
+                  {/* --- 階段 1 & 2 左側面板 (醫療參數) --- */}
+                  {(currentStep === 1 || currentStep === 2) && (
+                    <div className="col-span-3 flex flex-col gap-4 h-full overflow-hidden">
+                      <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg shrink-0">
+                         <h2 className="text-base font-bold text-[#d4af37] mb-3 border-b border-[#d4af37]/20 pb-2">INPUT 核心參數</h2>
+                         <div className="space-y-2.5">
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-[#a8b8d0]">性別 (Gender)</span>
+                             <div className="flex bg-[#d4af37]/10 rounded border border-[#d4af37]/40 p-0.5">
+                               <button onClick={() => setGender('M')} className={`px-3 py-0.5 rounded text-xs font-bold transition-all ${gender === 'M' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>男</button>
+                               <button onClick={() => setGender('F')} className={`px-3 py-0.5 rounded text-xs font-bold transition-all ${gender === 'F' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>女</button>
+                             </div>
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-[#a8b8d0]">當前實際年齡 (Attained Age)</span>
+                             <input type="number" value={currentAge} onChange={(e) => setCurrentAge(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-[#a8b8d0]">保障期至實際年齡 (Coverage Till)</span>
+                             <input type="number" value={coverageTill} onChange={(e) => setCoverageTill(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-[#a8b8d0]">融資啟動年齡 (Starts Age)</span>
+                             <input type="number" value={bundleStartAge} onChange={(e) => setBundleStartAge(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm pb-1">
+                             <span className="text-[#a8b8d0]">美元匯率 (USD Rate)</span>
+                             <input type="number" step="0.1" value={usdRate} onChange={(e) => setUsdRate(parseFloat(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm pt-1 border-t border-[#d4af37]/20">
+                             <span className="text-[#a8b8d0]">預期通脹率 (Inflation Rate)</span>
+                             <div className="flex w-24 relative shadow-inner">
+                                <input type="number" step="0.1" value={medicalInflation} onChange={(e) => setMedicalInflation(parseFloat(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded-l pl-2 py-1 border-y border-l border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37]" />
+                                <span className="bg-[#d4af37]/10 text-[#f3e5ab] border-y border-r border-[#d4af37]/40 rounded-r px-1 py-1 flex items-center">%</span>
+                             </div>
+                           </div>
+                         </div>
+                      </div>
+
+                      <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg flex-1 overflow-y-auto">
+                        <h2 className="text-base font-bold text-[#d4af37] mb-3 border-b border-[#d4af37]/20 pb-2">Medical Product 醫療計劃</h2>
+                        <div className="space-y-3">
+                          
+                          {/* 主計劃 1 */}
+                          <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/10">
+                            <label className="text-xs text-[#a8b8d0] mb-1.5 block">現時醫療計劃 (主)</label>
+                            <select value={plan1} onChange={(e)=>handlePlanChange(e, setPlan1, setDed1)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                              {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
+                            </select>
+                            <select value={ded1} onChange={(e) => setDed1(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                              {planData[plan1]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                            </select>
+                          </div>
+
+                          {/* 附加計劃 1B */}
+                          <div className="flex items-center gap-2 px-1">
+                            <input type="checkbox" id="chkPlan1B" checked={enablePlan1B} onChange={() => setEnablePlan1B(!enablePlan1B)} className="accent-[#d4af37] w-3.5 h-3.5 cursor-pointer" />
+                            <label htmlFor="chkPlan1B" className="text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二醫療計劃</label>
+                          </div>
+                          {enablePlan1B && (
+                            <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 animate-in fade-in slide-in-from-top-1">
+                              <select value={plan1B} onChange={(e)=>handlePlanChange(e, setPlan1B, setDed1B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
+                              </select>
+                              <select value={ded1B} onChange={(e) => setDed1B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                {planData[plan1B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                              </select>
+                            </div>
+                          )}
+
+                          <div className="pt-3 border-t border-[#d4af37]/20 mt-2">
+                            <div className="flex justify-between items-center mb-3">
+                              <label className="text-xs text-[#d4af37] font-bold">轉換計劃 (Conversion Age)</label>
+                              <input type="checkbox" checked={enableSwitch} onChange={() => setEnableSwitch(!enableSwitch)} className="accent-[#d4af37] w-4 h-4 cursor-pointer" />
+                            </div>
+                            {enableSwitch ? (
+                              <>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <input type="range" min={0} max={coverageTill - 1} value={switchAge} onChange={(e) => setSwitchAge(parseInt(e.target.value))} className="flex-1 accent-[#d4af37]" />
+                                  <span className="bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1 border border-[#d4af37]/40 text-sm w-12 text-center">{switchAge}</span>
+                                </div>
+                                
+                                {/* 轉換主計劃 2 */}
+                                <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/10 mb-2">
+                                  <label className="text-xs text-[#a8b8d0] mb-1.5 block">轉換後醫療計劃 (主)</label>
+                                  <select value={plan2} onChange={(e)=>handlePlanChange(e, setPlan2, setDed2)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                    {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
+                                  </select>
+                                  <select value={ded2} onChange={(e) => setDed2(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                    {planData[plan2]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                                  </select>
+                                </div>
+
+                                {/* 附加轉換計劃 2B */}
+                                <div className="flex items-center gap-2 px-1">
+                                  <input type="checkbox" id="chkPlan2B" checked={enablePlan2B} onChange={() => setEnablePlan2B(!enablePlan2B)} className="accent-[#d4af37] w-3.5 h-3.5 cursor-pointer" />
+                                  <label htmlFor="chkPlan2B" className="text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二轉換計劃</label>
+                                </div>
+                                {enablePlan2B && (
+                                  <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 mt-2 animate-in fade-in slide-in-from-top-1">
+                                    <select value={plan2B} onChange={(e)=>handlePlanChange(e, setPlan2B, setDed2B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                      {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
+                                    </select>
+                                    <select value={ded2B} onChange={(e) => setDed2B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                      {planData[plan2B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                                    </select>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="w-full bg-slate-800/50 text-slate-500 rounded px-2 py-1.5 text-sm border border-[#d4af37]/20 text-center mt-2">N/A</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* --- 階段 1: 預覽圖表 --- */}
+                  {currentStep === 1 && (
+                    <React.Fragment>
+                      <div className="col-span-3 flex flex-col h-full gap-4">
+                         <div className="bg-gradient-to-b from-[#1a1f2b] to-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-2xl flex-1 flex flex-col justify-between relative overflow-hidden gap-3">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d4af37]/10 via-[#d4af37] to-[#d4af37]/10 opacity-50"></div>
+                            
+                            {/* Block 1: 總保費 */}
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner">
+                                <div className="bg-[#a8b8d0]/10 p-2.5 rounded-xl shrink-0">
+                                    <Target className="w-6 h-6 text-[#a8b8d0]" />
+                                </div>
+                                <div className="flex flex-col flex-1 justify-center">
+                                    <span className="text-[#a8b8d0] text-[11px] font-bold tracking-widest uppercase mb-1">至 {coverageTill} 歲醫療總保費</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-[#f3e5ab] text-xl font-black leading-none mb-1">${formatCurrency(simulationData.totalInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
+                                        <span className="text-slate-500 text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.totalBasic)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Block 2: 自行支付 */}
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner">
+                                <div className="bg-[#a8b8d0]/10 p-2.5 rounded-xl shrink-0">
+                                    <PiggyBank className="w-6 h-6 text-[#a8b8d0]" />
+                                </div>
+                                <div className="flex flex-col flex-1 justify-center">
+                                    <span className="text-[#a8b8d0] text-[11px] font-bold tracking-widest uppercase mb-1">客戶自行支付 (融資前)</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-[#f3e5ab] text-xl font-black leading-none mb-1">${formatCurrency(simulationData.clientInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
+                                        <span className="text-slate-500 text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.clientBasic)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Block 3: 融資代繳 */}
+                            <div className="flex flex-col bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 rounded-xl p-4 border border-[#d4af37]/40 relative shadow-lg mt-auto overflow-hidden">
+                                <div className="absolute -right-4 -bottom-4 opacity-10">
+                                    <HeartPulse className="w-32 h-32 text-[#d4af37]" />
+                                </div>
+                                <span className="text-[#d4af37] text-xs font-bold tracking-widest uppercase mb-3 flex items-center gap-1.5 z-10">
+                                    <HeartPulse className="w-4 h-4"/> 融資計劃代繳總額
+                                </span>
+                                <div className="grid grid-cols-2 gap-2 z-10">
+                                    <div className="flex flex-col justify-end">
+                                        <span className="text-[#d4af37]/80 text-[10px] uppercase mb-1 tracking-wider">未計通脹</span>
+                                        <span className="text-[#d4af37] text-lg font-bold leading-none">${formatCurrency(simulationData.hedgedBasic)}</span>
+                                    </div>
+                                    <div className="flex flex-col justify-end border-l border-[#d4af37]/30 pl-3">
+                                        <span className="text-[#f3e5ab] text-[10px] uppercase mb-1 tracking-wider">計算通脹後</span>
+                                        <span className="text-gradient-gold text-[26px] font-black drop-shadow-md leading-none">${formatCurrency(simulationData.hedgedInflated)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="col-span-6 bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg relative min-h-0 flex flex-col">
+                        <h2 className="text-lg font-bold text-center text-[#d4af37] mb-2">預期醫療保費通脹曲線</h2>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ComposedChart data={simulationData.chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                            <XAxis dataKey="age" stroke="#a8b8d0" tick={{ fill: '#a8b8d0', fontSize: 12 }} />
+                            <YAxis yAxisId="left" stroke="#a8b8d0" tickFormatter={(val) => `$${formatCurrency(val)}`} tick={{ fontSize: 12 }} width={75} />
+                            <Tooltip contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '8px' }} formatter={(value) => formatCurrency(value)} labelFormatter={(label) => `實際年齡: ${label}歲`} />
+                            <Legend verticalAlign="top" height={30} wrapperStyle={{ color: '#d4af37', fontSize: 12 }}/>
+                            {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
+                              <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 11, offset: 10 }} />
+                            )}
+                            <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動融資提取', fill: '#E6C280', fontSize: 11, offset: 10 }} />
+                            <Area type="monotone" dataKey="預期醫療保費" fill="#d4af37" fillOpacity={0.1} stroke="#d4af37" strokeWidth={3} yAxisId="left" name="通脹醫療保費" />
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </React.Fragment>
+                  )}
+
+                  {/* --- 階段 2: SMART 提取表 --- */}
+                  {currentStep === 2 && (
+                    <React.Fragment>
+                      <div className="col-span-3 flex flex-col h-full gap-4">
+                         <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/50 shadow-lg flex-1 flex flex-col justify-center text-center px-6">
+                            <HeartPulse className="w-12 h-12 text-[#d4af37] mx-auto mb-4" />
+                            <h2 className="text-xl font-bold text-[#d4af37] mb-2">SMART 智能運算完成</h2>
+                            <div className="space-y-3 text-[#a8b8d0] text-left mt-4">
+                              <div className="flex items-start gap-3">
+                                <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <p className="text-sm leading-relaxed">系統已自動將保費分為 <b className="text-[#f3e5ab]">10年一組</b>。</p>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <p className="text-sm leading-relaxed">系統已反推每組的 <b className="text-[#f3e5ab]">最佳遞增率 (CAGR)</b>。</p>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <p className="text-sm leading-relaxed">首年提取額與遞增率可完美覆蓋該區塊的通脹醫療開支。</p>
+                              </div>
+                              <div className="bg-gradient-to-br from-[#1a1f2b] to-[#0f141e] p-4 rounded-xl border border-[#d4af37]/30 mt-6 text-center shadow-lg relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
+                                <p className="text-[#d4af37] font-black text-xs tracking-widest uppercase mb-1.5 flex items-center justify-center gap-1">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                  NEXT STEP
+                                </p>
+                                <p className="text-xs text-slate-400">請將右方表格數據直接輸入公司的 SMART 系統中，並生成建議書。</p>
+                              </div>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="col-span-6 bg-[#fdfbf7] rounded-xl border border-[#d4af37]/40 shadow-lg flex flex-col overflow-hidden min-h-0">
+                        <div className="bg-[#111] py-3 px-4 border-b border-[#d4af37] flex justify-between items-center shrink-0">
+                          <h2 className="text-base font-bold text-[#d4af37] flex items-center gap-2"><Landmark className="w-5 h-5"/> SMART 系統專用提取數據</h2>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2">
+                          <table className="w-full text-sm text-center border-collapse">
+                            <thead className="bg-[#fdfbf7] sticky top-0 border-b border-[#d4af37]/30 z-10">
+                              <tr>
+                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal starts<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
+                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal ends<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
+                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Attained Age<br/><span className="text-[10px] font-normal text-slate-400">(Reference)</span></th>
+                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(HKD)</span></th>
+                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(USD)</span></th>
+                                <th className="py-2.5 font-bold text-[#8b6508] font-sans">Increment Rate<br/><span className="text-[10px] font-normal text-slate-400">(%)</span></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {simulationData.smartBlocks.map((block, idx) => (
+                                <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#fdfbf7]'} border-b border-slate-100 hover:bg-[#fff7e6] transition-colors`}>
+                                  <td className="py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.startYear}</td>
+                                  <td className="py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.endYear}</td>
+                                  <td className="py-3 text-slate-400 text-xs border-r border-slate-100">{block.startAge} 歲 ~ {block.endAge} 歲</td>
+                                  <td className="py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-lg">{formatCurrency(block.hkd)}</td>
+                                  <td className="py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-lg">{formatCurrency(block.usd)}</td>
+                                  <td className="py-3 font-extrabold text-[#8b6508] text-lg">{block.incrementRate.toFixed(1)}%</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  )}
+
+                  {/* --- 階段 3: 儲蓄建議書配對 --- */}
+                  {currentStep === 3 && (
+                    <React.Fragment>
+                      <div className="col-span-4 bg-[#0f141e] rounded-xl p-6 border border-[#d4af37]/40 shadow-lg flex flex-col h-full">
+                         <h2 className="text-xl font-bold text-[#d4af37] mb-5 border-b border-[#d4af37]/30 pb-3 flex items-center gap-2"><FileText className="w-5 h-5"/> 儲蓄保險建議書數據</h2>
+                         <p className="text-[#a8b8d0] text-sm mb-6">請輸入您剛才在系統跑出的建議書最終數據 (美元)。</p>
+                         <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">儲蓄計劃名稱</span>
+                               <input type="text" value={savingsPlanName} onChange={e => setSavingsPlanName(e.target.value)} className="w-40 bg-[#1a1f2b] text-white font-bold rounded px-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">供款年期 (年)</span>
+                               <input type="number" value={premiumTerm} onChange={e => setPremiumTerm(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">每年保費 (USD)</span>
+                               <input type="number" value={annualPremiumUSD} onChange={e => setAnnualPremiumUSD(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">首年保費折扣 (%)</span>
+                               <input type="number" step="0.1" value={promoDiscount1Pct} onChange={e => setPromoDiscount1Pct(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">次年/額外折扣 (%)</span>
+                               <input type="number" step="0.1" value={promoDiscount2Pct} onChange={e => setPromoDiscount2Pct(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                               <span className="text-slate-300">期滿預期價值 (USD)</span>
+                               <input type="number" value={projectedValueUSD} onChange={e => setProjectedValueUSD(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                           </div>
+                           <div className="flex justify-between items-center text-sm pt-4 border-t border-[#d4af37]/30 mt-2">
+                               <span className="text-[#f3e5ab] font-bold">轉換匯率 (USD兌HKD)</span>
+                               <input type="number" step="0.01" value={savingsExchangeRate} onChange={e => setSavingsExchangeRate(Number(e.target.value))} className="w-40 bg-[#d4af37]/20 text-[#f3e5ab] font-bold rounded pl-3 py-1.5 border border-[#d4af37] outline-none text-right focus:ring-1 focus:ring-[#d4af37]" />
+                           </div>
+                         </div>
+                      </div>
+                      
+                      <div className="col-span-4 flex flex-col gap-5 h-full">
+                         <div className="bg-[#1a1f2b] rounded-xl p-6 border border-[#d4af37]/30 flex-1 flex flex-col justify-center shadow-lg">
+                             <div className="text-[#d4af37] mb-2 font-bold flex items-center gap-2"><Target className="w-5 h-5"/> 總保費投入 (Net)</div>
+                             <div className="text-4xl font-extrabold text-white tracking-wide drop-shadow-sm">
+                               ${formatCurrency(((annualPremiumUSD * premiumTerm) - (annualPremiumUSD * promoDiscount1Pct / 100) - (annualPremiumUSD * promoDiscount2Pct / 100)) * savingsExchangeRate)} <span className="text-xl text-[#f3e5ab]">HKD</span>
+                             </div>
+                             <div className="text-[#a8b8d0] text-xs mt-2">(已扣除折扣並轉換匯率)</div>
+                         </div>
+                         <div className="bg-[#1a1f2b] rounded-xl p-6 border border-[#d4af37]/30 flex-1 flex flex-col justify-center shadow-lg">
+                             <div className="text-[#d4af37] mb-2 font-bold flex items-center gap-2"><HeartPulse className="w-5 h-5"/> 預期醫療總提取 (至 {coverageTill} 歲)</div>
+                             <div className="text-4xl font-extrabold text-white tracking-wide drop-shadow-sm">${formatCurrency(simulationData.totalMedicalWithdrawal_Infographic)} <span className="text-xl text-[#f3e5ab]">HKD</span></div>
+                             <div className="text-[#a8b8d0] text-xs mt-2">(SMART 系統對應支付保費總額)</div>
+                         </div>
+                         <div className="bg-[#1a1f2b] rounded-xl p-6 border border-[#d4af37]/30 flex-1 flex flex-col justify-center shadow-lg">
+                             <div className="text-[#d4af37] mb-2 font-bold flex items-center gap-2"><PiggyBank className="w-5 h-5"/> 期滿剩餘戶口價值 ({coverageTill} 歲)</div>
+                             <div className="text-4xl font-extrabold text-white tracking-wide drop-shadow-sm">${formatCurrency(projectedValueUSD * savingsExchangeRate)} <span className="text-xl text-[#f3e5ab]">HKD</span></div>
+                             <div className="text-[#a8b8d0] text-xs mt-2">(已轉換為港幣)</div>
+                         </div>
+                      </div>
+
+                      <div className="col-span-4 bg-gradient-to-b from-[#1a1f2b] to-[#0f141e] rounded-xl p-8 border border-[#d4af37]/50 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col items-center justify-center text-center">
+                           <Presentation className="w-24 h-24 text-[#d4af37] mb-6 drop-shadow-lg opacity-90" />
+                           <h2 className="text-3xl font-extrabold text-white mb-4 tracking-wide text-gradient-gold">數據已準備就緒</h2>
+                           <p className="text-[#a8b8d0] mb-10 text-lg leading-relaxed">
+                               我們已經為您整合了所有醫療保費及儲蓄建議書數據。<br/>點擊下方按鈕，立即生成您的專屬高清醫療融資展示圖表！
+                           </p>
+                           <button onClick={() => setCurrentStep(4)} className="bg-gradient-to-r from-[#E6C280] via-[#D4AF37] to-[#AA8222] text-[#111] px-10 py-4 rounded-xl font-black text-2xl shadow-[0_0_30px_rgba(212,175,55,0.3)] hover:scale-105 transition-all duration-300 border border-[#FFF0C0]">
+                               生成尊貴資訊圖表
+                           </button>
+                      </div>
+                    </React.Fragment>
+                  )}
+
+                </div>
+              </React.Fragment>
+            )}
+
+            {/* --- 階段 4: 終極資訊圖表 (全螢幕展示) --- */}
+            {currentStep === 4 && renderInfographic()}
+
+            {/* --- 階段 5: 提取對比圖 (全螢幕展示) --- */}
+            {currentStep === 5 && (
+              <div className="w-full h-full flex flex-col relative px-6 pb-4">
+                <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
+                    <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
+                        ← 返回修改
+                    </button>
+                </div>
+                
+                <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-8">
+                    
+                    <div className="flex justify-between items-center mb-6 shrink-0">
+                        <div>
+                            <h1 className="text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide">
+                                終身醫療保費 vs 醫療儲備提取展示
+                            </h1>
+                            <p className="text-[#a8b8d0] mt-2 font-bold tracking-wide">
+                                視覺化驗證：每一年的提取金額是否能完美覆蓋當年的通脹醫療保費
+                            </p>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner">
+                                <span className="text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
+                                <span className="text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
+                            </div>
+                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner">
+                                <span className="text-xs text-[#a8b8d0] mb-1">融資啟動年齡</span>
+                                <span className="text-lg font-bold text-[#E6C280]">{bundleStartAge} 歲</span>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-6 shadow-inner relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                                <defs>
+                                    <linearGradient id="colorPremium" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                                <XAxis 
+                                    dataKey="age" 
+                                    stroke="#a8b8d0" 
+                                    tick={{ fill: '#a8b8d0', fontSize: 14 }} 
+                                    tickMargin={10}
+                                    minTickGap={20}
+                                />
+                                <YAxis 
+                                    yAxisId="left" 
+                                    stroke="#a8b8d0" 
+                                    tickFormatter={(val) => `$${formatCurrency(val)}`} 
+                                    tick={{ fontSize: 14 }} 
+                                    width={100} 
+                                />
+                                <Tooltip 
+                                    contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '12px', padding: '12px' }} 
+                                    formatter={(value, name) => [formatCurrency(value), name === '預期醫療保費' ? '預期醫療保費 (計通脹)' : '醫療儲備提取']} 
+                                    labelFormatter={(label) => `實際年齡: ${label}歲`} 
+                                    itemStyle={{ fontSize: '14px', marginTop: '4px' }}
+                                />
+                                <Legend 
+                                    verticalAlign="top" 
+                                    height={40} 
+                                    wrapperStyle={{ color: '#d4af37', fontSize: 14, fontWeight: 'bold' }}
+                                />
+                                
+                                {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
+                                    <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 14, offset: 15 }} />
+                                )}
+                                <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動提取', fill: '#E6C280', fontSize: 14, offset: 15 }} />
+                                
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="預期醫療保費" 
+                                    fill="url(#colorPremium)" 
+                                    stroke="#d4af37" 
+                                    strokeWidth={4} 
+                                    yAxisId="left" 
+                                    name="預期醫療保費" 
+                                    activeDot={{ r: 6, fill: '#E6C280', stroke: '#fff', strokeWidth: 2 }}
+                                />
+                                <Bar 
+                                    dataKey="醫療儲備提取" 
+                                    fill="url(#colorWithdrawal)" 
+                                    yAxisId="left" 
+                                    name="醫療儲備提取" 
+                                    barSize={12}
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </ComposedChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
