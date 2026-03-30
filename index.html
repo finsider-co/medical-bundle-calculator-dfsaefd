@@ -58,6 +58,7 @@
       ComposedChart, Line, Bar, Legend, ReferenceLine, Step
     } = Recharts;
 
+    // --- 圖標組件 ---
     const HeartPulse = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>;
     const Target = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
     const Settings2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>;
@@ -70,17 +71,29 @@
     const FileSpreadsheet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 18v-4"/><path d="M3 14h18"/><path d="M3 18h18"/><path d="M9 14v4"/><path d="M9 18v4"/><path d="M3 10V6a2 2 0 0 1 2-2h9l5 5v13a2 2 0 0 1-2 2h-6"/></svg>;
     const CodeIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>;
 
-    // 核心稀疏資料庫 (已清除錯誤推算數據，僅保留核心節點。強烈建議使用 Excel 貼上功能更新為真實全量數據)
+    // 尊衛您 (標準 0自付) 0-100歲 逐年全量絕對精確數據
+    const VPRIME_0_EXACT = [10550, 10550, 10550, 10550, 10550, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9693, 9947, 10021, 10243, 10540, 10827, 11037, 11194, 11713, 12315, 12913, 13355, 13639, 13830, 14127, 14238, 14529, 14791, 15300, 15329, 15633, 16029, 16150, 16365, 16671, 17072, 17844, 18896, 19812, 20914, 21551, 22372, 23285, 23735, 24605, 26601, 27755, 28896, 30118, 31998, 33818, 35545, 37928, 39815, 41772, 45298, 49960, 55832, 60594, 65456, 68015, 69544, 71821, 73774, 81503, 85987, 90397, 94100, 95801, 101828, 108840, 111876, 115391, 117205, 123958, 127550, 129801, 131847, 134200, 136655, 138805, 140954, 143205, 145456, 147810, 149958, 152209, 154665, 156916, 159270, 162118, 164961, 171750, 171750];
+    const VPRIME_16K_EXACT = [5747, 5747, 5747, 5747, 5747, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 4983, 5016, 5196, 5282, 5360, 5667, 5682, 6098, 6112, 6112, 6505, 6624, 6743, 6862, 6978, 7094, 7163, 7320, 7413, 7785, 7785, 7970, 7970, 8063, 8526, 8711, 9082, 9359, 9817, 10276, 10826, 11364, 11912, 12584, 12966, 13251, 13822, 14393, 14886, 15863, 16842, 17823, 19095, 20351, 21465, 22949, 25202, 28018, 30747, 33479, 34071, 34944, 36098, 37221, 41101, 43448, 45366, 47629, 48741, 51266, 54699, 55811, 59038, 60356, 61722, 63723, 64752, 66089, 66911, 68473, 70127, 71111, 72837, 74156, 75686, 77267, 78666, 80553, 81818, 83264, 84107, 85644, 86150, 86150];
+    const VPRIME_25K_EXACT = [5125, 5125, 5125, 5125, 5125, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4470, 4575, 4575, 4575, 4891, 4997, 5309, 5309, 5506, 5610, 5728, 5834, 5936, 5943, 6105, 6236, 6335, 6518, 6702, 6702, 6793, 6793, 6976, 7251, 7481, 7877, 7894, 8701, 9099, 9704, 10090, 10458, 10640, 11019, 11221, 11978, 12447, 12745, 13426, 14296, 15265, 16237, 17209, 18382, 19630, 21558, 23976, 26028, 28455, 28945, 29711, 30758, 31686, 34956, 36882, 38754, 40477, 41478, 43580, 46581, 47481, 50185, 51288, 52566, 54160, 54975, 56484, 58509, 59788, 61278, 62197, 63869, 64811, 65990, 66850, 67922, 68702, 69393, 70765, 71644, 72427, 73394, 73394];
+    const VPRIME_50K_EXACT = [4178, 4178, 4178, 4178, 4178, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3624, 3656, 3722, 3817, 3902, 4010, 4105, 4201, 4281, 4361, 4439, 4439, 4467, 4671, 4671, 4688, 4719, 4719, 4833, 4965, 4965, 5031, 5056, 5363, 5705, 5895, 6199, 6297, 6833, 7140, 7608, 7903, 8256, 8789, 9206, 9622, 10038, 10452, 10883, 11314, 11746, 12180, 12613, 13292, 14022, 14817, 15802, 16692, 17461, 18695, 19861, 21262, 22684, 24149, 25561, 27122, 28582, 30060, 31645, 32760, 34373, 35036, 37022, 39176, 40206, 41682, 43271, 44716, 46317, 47325, 48502, 49227, 50548, 51339, 55754, 56784, 58015, 59386, 60494, 62213, 64043, 65276, 66692, 66692];
+    const VPRIME_100K_EXACT = [3398, 3398, 3398, 3398, 3398, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3125, 3142, 3189, 3242, 3303, 3380, 3449, 3500, 3562, 3622, 3682, 3682, 3698, 3859, 3859, 3865, 3887, 3887, 3968, 4065, 4065, 4107, 4121, 4357, 4620, 4761, 4993, 5064, 5484, 5724, 6090, 6324, 6598, 7018, 7344, 7670, 7996, 8321, 8748, 9084, 9421, 9864, 10205, 10742, 11319, 11948, 12589, 13283, 13883, 14846, 15580, 16662, 17754, 18896, 19993, 21206, 22343, 23492, 24724, 25588, 26845, 27360, 28902, 30579, 31378, 32527, 33763, 34886, 36129, 36914, 37829, 38393, 39420, 40036, 43467, 44268, 45226, 46291, 47154, 48487, 49912, 50870, 51972, 51972];
+    const VPRIME_250K_EXACT = [2856, 2856, 2856, 2856, 2856, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2650, 2663, 2699, 2737, 2783, 2844, 2897, 2933, 2981, 3030, 3077, 3077, 3088, 3196, 3196, 3199, 3215, 3215, 3259, 3336, 3336, 3368, 3378, 3565, 3773, 3885, 4067, 4124, 4396, 4583, 4868, 5050, 5263, 5588, 5842, 6096, 6349, 6602, 6957, 7318, 7586, 7959, 8231, 8659, 9117, 9616, 10096, 10645, 11119, 11716, 12249, 13090, 13942, 14828, 15683, 16624, 17509, 18404, 19361, 20035, 21011, 21410, 22613, 23915, 24537, 25431, 26392, 27266, 28234, 28843, 29555, 29994, 30793, 31271, 33941, 34563, 35308, 36137, 36807, 37846, 38953, 39699, 40555, 40555];
+
+    // 醫家保 (標準) 0-100歲 逐年全量絕對精確數據
+    const VFAMILY_M_EXACT = [5524, 5524, 5524, 5524, 5524, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4728, 4647, 3718, 3754, 3856, 3959, 4066, 4176, 4289, 4405, 4523, 4645, 4771, 4917, 4989, 5062, 5135, 5210, 5286, 5363, 5441, 5521, 5601, 5689, 5942, 6207, 6483, 6771, 7073, 7387, 7716, 8059, 8418, 8802, 9297, 9820, 10373, 10957, 11590, 12265, 12980, 13737, 14537, 15246, 16132, 17064, 18057, 19107, 20218, 21394, 22638, 23955, 25348, 26759, 28178, 29668, 31245, 32901, 34645, 36481, 38415, 40450, 42602, 44904, 48332, 52022, 55970, 57732, 59775, 61779, 65034, 66816, 68804, 70295, 71607, 72980, 74383, 75813, 77272, 78759, 80275, 81819, 83392, 96571, 96571];
+    const VFAMILY_F_EXACT = [3841, 3841, 3841, 3841, 3841, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4394, 4473, 4635, 4803, 4977, 5157, 5343, 5537, 5737, 5945, 6160, 6464, 6564, 6666, 6769, 6874, 6980, 7088, 7191, 7302, 7415, 7542, 7776, 8017, 8265, 8521, 8785, 9058, 9339, 9628, 9926, 10232, 10655, 11096, 11554, 12033, 12530, 13049, 13570, 14131, 14716, 15345, 16556, 17862, 19266, 20786, 22425, 24194, 26102, 28161, 30382, 30737, 31652, 32594, 33562, 34561, 35591, 36622, 37684, 38782, 39912, 41188, 42352, 43550, 44752, 45999, 47537, 49073, 50755, 51816, 53365, 54848, 56366, 57927, 59529, 61175, 62867, 64604, 66392, 68228, 70014, 71825, 71825];
+
+    // --- 核心稀疏資料庫 ---
     const RAW_PLAN_DATA = {
       'vPrime': { 
         name: '尊衛您 (寰譽版) - 標準', genderSpecific: false, deductibles: [0, 16000, 25000, 50000, 100000, 250000], 
         rates: { 
-          0: [ {age: 0, val: 10550}, {age: 4, val: 10550}, {age: 5, val: 9693}, {age: 17, val: 9693}, {age: 20, val: 10243}, {age: 30, val: 13830}, {age: 40, val: 16365}, {age: 50, val: 23735}, {age: 60, val: 41772}, {age: 70, val: 71821}, {age: 80, val: 111876}, {age: 100, val: 171750} ], 
-          16000: [ {age: 0, val: 5747}, {age: 4, val: 5747}, {age: 5, val: 4983}, {age: 17, val: 4983}, {age: 20, val: 5282}, {age: 30, val: 6862}, {age: 40, val: 8063}, {age: 50, val: 12584}, {age: 60, val: 21465}, {age: 70, val: 41101}, {age: 80, val: 66089}, {age: 100, val: 86150} ], 
-          25000: [ {age: 0, val: 5125}, {age: 4, val: 5125}, {age: 5, val: 4470}, {age: 17, val: 4470}, {age: 20, val: 4575}, {age: 30, val: 5936}, {age: 40, val: 6976}, {age: 50, val: 10640}, {age: 60, val: 18382}, {age: 70, val: 34956}, {age: 80, val: 56484}, {age: 100, val: 73394} ], 
-          50000: [ {age: 0, val: 4178}, {age: 4, val: 4178}, {age: 5, val: 3624}, {age: 17, val: 3624}, {age: 20, val: 3722}, {age: 30, val: 4467}, {age: 40, val: 5363}, {age: 50, val: 8789}, {age: 60, val: 13292}, {age: 70, val: 30060}, {age: 80, val: 43271}, {age: 100, val: 66692} ], 
-          100000: [ {age: 0, val: 3398}, {age: 4, val: 3398}, {age: 5, val: 3125}, {age: 17, val: 3125}, {age: 20, val: 3189}, {age: 30, val: 3698}, {age: 40, val: 4357}, {age: 50, val: 7018}, {age: 60, val: 10742}, {age: 70, val: 23492}, {age: 80, val: 36914}, {age: 100, val: 51972} ], 
-          250000: [ {age: 0, val: 2856}, {age: 4, val: 2856}, {age: 5, val: 2650}, {age: 17, val: 2650}, {age: 20, val: 2699}, {age: 30, val: 3088}, {age: 40, val: 3565}, {age: 50, val: 5588}, {age: 60, val: 9117}, {age: 70, val: 19361}, {age: 80, val: 28843}, {age: 100, val: 40555} ] 
+          0: VPRIME_0_EXACT.map((val, age) => ({age, val})), 
+          16000: VPRIME_16K_EXACT.map((val, age) => ({age, val})), 
+          25000: VPRIME_25K_EXACT.map((val, age) => ({age, val})), 
+          50000: VPRIME_50K_EXACT.map((val, age) => ({age, val})), 
+          100000: VPRIME_100K_EXACT.map((val, age) => ({age, val})), 
+          250000: VPRIME_250K_EXACT.map((val, age) => ({age, val})) 
         } 
       },
       'vPrimeS': { 
@@ -127,11 +140,22 @@
           250000: [ {age: 0, val: 6001}, {age: 4, val: 6001}, {age: 5, val: 7534}, {age: 19, val: 7534}, {age: 30, val: 7739}, {age: 40, val: 9090}, {age: 50, val: 13318}, {age: 60, val: 22277}, {age: 70, val: 36447}, {age: 80, val: 58490}, {age: 100, val: 93936} ] 
         } 
       },
+      'vTheOneP': { 
+        name: '至．衛一 - 優等', genderSpecific: false, deductibles: [0, 25000, 40000, 80000, 120000, 250000], 
+        rates: { 
+          0: [ {age: 0, val: 39325}, {age: 4, val: 39325}, {age: 5, val: 44311}, {age: 19, val: 44311}, {age: 30, val: 49203}, {age: 40, val: 60543}, {age: 50, val: 91762}, {age: 60, val: 157443}, {age: 70, val: 259993}, {age: 80, val: 410784}, {age: 100, val: 631776} ], 
+          25000: [ {age: 0, val: 25440}, {age: 4, val: 25440}, {age: 5, val: 28627}, {age: 19, val: 28627}, {age: 30, val: 31766}, {age: 40, val: 39042}, {age: 50, val: 59072}, {age: 60, val: 101215}, {age: 70, val: 167062}, {age: 80, val: 264150}, {age: 100, val: 406146} ], 
+          40000: [ {age: 0, val: 13732}, {age: 4, val: 13732}, {age: 5, val: 17644}, {age: 19, val: 17644}, {age: 30, val: 19477}, {age: 40, val: 23815}, {age: 50, val: 35987}, {age: 60, val: 61119}, {age: 70, val: 101094}, {age: 80, val: 160242}, {age: 100, val: 247070} ], 
+          80000: [ {age: 0, val: 11906}, {age: 4, val: 11906}, {age: 5, val: 15036}, {age: 19, val: 15036}, {age: 30, val: 16244}, {age: 40, val: 19851}, {age: 50, val: 29783}, {age: 60, val: 50334}, {age: 70, val: 83793}, {age: 80, val: 132929}, {age: 100, val: 203105} ], 
+          120000: [ {age: 0, val: 10210}, {age: 4, val: 10210}, {age: 5, val: 12582}, {age: 19, val: 12582}, {age: 30, val: 13506}, {age: 40, val: 16096}, {age: 50, val: 24092}, {age: 60, val: 40634}, {age: 70, val: 67570}, {age: 80, val: 107128}, {age: 100, val: 163620} ], 
+          250000: [ {age: 0, val: 9241}, {age: 4, val: 9241}, {age: 5, val: 11328}, {age: 19, val: 11328}, {age: 30, val: 11817}, {age: 40, val: 14094}, {age: 50, val: 20435}, {age: 60, val: 34382}, {age: 70, val: 57078}, {age: 80, val: 90322}, {age: 100, val: 137886} ] 
+        } 
+      },
       'vFamily': { 
         name: '醫家保 - 標準', genderSpecific: true, deductibles: [0], 
         rates: { 
-          'M_0': [ {age: 0, val: 5524}, {age: 4, val: 5524}, {age: 5, val: 4728}, {age: 17, val: 4728}, {age: 18, val: 4647}, {age: 19, val: 3718}, {age: 20, val: 3754}, {age: 30, val: 4917}, {age: 40, val: 5689}, {age: 50, val: 8802}, {age: 60, val: 15246}, {age: 70, val: 26759}, {age: 80, val: 44904}, {age: 83, val: 55970}, {age: 84, val: 57732}, {age: 85, val: 59775}, {age: 86, val: 61779}, {age: 87, val: 65034}, {age: 88, val: 66816}, {age: 89, val: 68804}, {age: 99, val: 96571}, {age: 100, val: 96571} ], 
-          'F_0': [ {age: 0, val: 3841}, {age: 4, val: 3841}, {age: 5, val: 4394}, {age: 17, val: 4394}, {age: 20, val: 4473}, {age: 30, val: 6464}, {age: 40, val: 7542}, {age: 50, val: 10232}, {age: 60, val: 15345}, {age: 70, val: 30737}, {age: 80, val: 41188}, {age: 83, val: 44752}, {age: 84, val: 45999}, {age: 85, val: 47537}, {age: 86, val: 49073}, {age: 87, val: 50755}, {age: 88, val: 51816}, {age: 89, val: 53365}, {age: 99, val: 71825}, {age: 100, val: 71825} ] 
+          'M_0': VFAMILY_M_EXACT.map((val, age) => ({age, val})), 
+          'F_0': VFAMILY_F_EXACT.map((val, age) => ({age, val})) 
         } 
       },
       'vCANsurance': { 
@@ -237,7 +261,7 @@
       const [medicalInflation, setMedicalInflation] = useState(3.0);
       
       const [plan1, setPlan1] = useState('vPrime');
-      const [ded1, setDed1] = useState(0);
+      const [ded1, setDed1] = useState(100000);
       const [enablePlan1B, setEnablePlan1B] = useState(false);
       const [plan1B, setPlan1B] = useState('vFamily');
       const [ded1B, setDed1B] = useState(0);
@@ -473,109 +497,6 @@
 
       const formatCurrency = (val) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(val);
 
-      const renderComparisonChart = () => {
-          return (
-            <div className="w-full h-full flex flex-col relative px-6 pb-4">
-              <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
-                  <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
-                      ← 返回修改
-                  </button>
-              </div>
-              
-              <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-8">
-                  
-                  <div className="flex justify-between items-center mb-6 shrink-0">
-                      <div>
-                          <h1 className="text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide">
-                              終身醫療保費 vs 醫療儲備提取展示
-                          </h1>
-                          <p className="text-[#a8b8d0] mt-2 font-bold tracking-wide">
-                              視覺化驗證：每一年的提取金額是否能完美覆蓋當年的通脹醫療保費
-                          </p>
-                      </div>
-                      <div className="flex gap-4">
-                          <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center">
-                              <span className="text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
-                              <span className="text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
-                          </div>
-                          <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center">
-                              <span className="text-xs text-[#a8b8d0] mb-1">融資啟動年齡</span>
-                              <span className="text-lg font-bold text-[#E6C280]">{bundleStartAge} 歲</span>
-                          </div>
-                      </div>
-                  </div>
-  
-                  <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-6 shadow-inner relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                          <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-                              <defs>
-                                  <linearGradient id="colorPremium" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
-                                      <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
-                                  </linearGradient>
-                                  <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
-                                  </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-                              <XAxis 
-                                  dataKey="age" 
-                                  stroke="#a8b8d0" 
-                                  tick={{ fill: '#a8b8d0', fontSize: 14 }} 
-                                  tickMargin={10}
-                                  minTickGap={20}
-                              />
-                              <YAxis 
-                                  yAxisId="left" 
-                                  stroke="#a8b8d0" 
-                                  tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} 
-                                  tick={{ fontSize: 14 }} 
-                                  width={80} 
-                              />
-                              <Tooltip 
-                                  contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '12px', padding: '12px' }} 
-                                  formatter={(value, name) => [formatCurrency(value), name === '預期醫療保費' ? '預期醫療保費 (計通脹)' : '醫療儲備提取']} 
-                                  labelFormatter={(label) => `實際年齡: ${label}歲`} 
-                                  itemStyle={{ fontSize: '14px', marginTop: '4px' }}
-                              />
-                              <Legend 
-                                  verticalAlign="top" 
-                                  height={40} 
-                                  wrapperStyle={{ color: '#d4af37', fontSize: 14, fontWeight: 'bold' }}
-                              />
-                              
-                              {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
-                                  <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '🔄 轉換計劃', fill: '#f3e5ab', fontSize: 13, offset: 10 }} />
-                              )}
-                              <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '🚀 啟動提取', fill: '#E6C280', fontSize: 13, offset: 10 }} />
-                              
-                              <Area 
-                                  type="monotone" 
-                                  dataKey="預期醫療保費" 
-                                  fill="url(#colorPremium)" 
-                                  stroke="#d4af37" 
-                                  strokeWidth={4} 
-                                  yAxisId="left" 
-                                  name="預期醫療保費" 
-                                  activeDot={{ r: 6, fill: '#E6C280', stroke: '#fff', strokeWidth: 2 }}
-                              />
-                              <Bar 
-                                  dataKey="醫療儲備提取" 
-                                  fill="url(#colorWithdrawal)" 
-                                  yAxisId="left" 
-                                  name="醫療儲備提取" 
-                                  barSize={8}
-                                  radius={[4, 4, 0, 0]}
-                              />
-                          </ComposedChart>
-                      </ResponsiveContainer>
-                  </div>
-              </div>
-            </div>
-          );
-      };
-
       const renderInfographic = () => {
         const { startAge, totalMedicalWithdrawal_Infographic } = simulationData;
         const withdrawalYears = coverageTill - startAge + 1;
@@ -708,7 +629,7 @@
                     {/* 卡片 3 (香檳金 - 淺色尊貴版) */}
                     <div className="flex-1 bg-gradient-to-b from-amber-50/50 to-white border border-[#d4af37]/30 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
                         <div className="bg-gradient-to-r from-[#c5a059] via-[#aa8222] to-[#c5a059] text-white text-center py-4 font-black text-xl tracking-widest border-b border-[#d4af37]/30 shadow-md backdrop-blur-sm">
-                            STEP 3: 財富傳承
+                            STEP 3: 財傳傳承
                         </div>
                         <div className="p-6 flex flex-col items-center justify-center flex-1 text-center">
                             <PiggyBank className="w-14 h-14 text-[#c5a059] mb-4 opacity-90" />
