@@ -152,10 +152,10 @@
         } 
       },
       'vFamily': { 
-        name: '醫家保 - 標準', genderSpecific: true, deductibles: [0], 
+        name: '醫家保', genderSpecific: true, deductibles: [0], 
         rates: { 
-          'M_0': VFAMILY_M_EXACT.map((val, age) => ({age, val})), 
-          'F_0': VFAMILY_F_EXACT.map((val, age) => ({age, val})) 
+          'M_0': [ {age: 0, val: 5524}, {age: 4, val: 5524}, {age: 5, val: 4728}, {age: 17, val: 4728}, {age: 18, val: 4647}, {age: 19, val: 3718}, {age: 20, val: 3754}, {age: 30, val: 4917}, {age: 40, val: 5689}, {age: 50, val: 8802}, {age: 60, val: 15246}, {age: 70, val: 26759}, {age: 80, val: 44904}, {age: 83, val: 55970}, {age: 84, val: 57732}, {age: 85, val: 59775}, {age: 86, val: 61779}, {age: 87, val: 65034}, {age: 88, val: 66816}, {age: 89, val: 68804}, {age: 99, val: 96571}, {age: 100, val: 96571} ], 
+          'F_0': [ {age: 0, val: 3841}, {age: 4, val: 3841}, {age: 5, val: 4394}, {age: 17, val: 4394}, {age: 20, val: 4473}, {age: 30, val: 6464}, {age: 40, val: 7542}, {age: 50, val: 10232}, {age: 60, val: 15345}, {age: 70, val: 30737}, {age: 80, val: 41188}, {age: 83, val: 44752}, {age: 84, val: 45999}, {age: 85, val: 47537}, {age: 86, val: 49073}, {age: 87, val: 50755}, {age: 88, val: 51816}, {age: 89, val: 53365}, {age: 99, val: 71825}, {age: 100, val: 71825} ] 
         } 
       },
       'vCANsurance': { 
@@ -367,17 +367,6 @@
           if (isEditingData) setJsonText(JSON.stringify(planData, null, 2));
       }, [planData, isEditingData]);
 
-      const saveJsonPlanData = () => {
-        try {
-          const parsed = JSON.parse(jsonText);
-          setPlanData(parsed);
-          setJsonError("✅ JSON 更新成功！");
-          setTimeout(() => setJsonError(""), 3000);
-        } catch (err) {
-          setJsonError("JSON 格式錯誤，請檢查您的輸入！ (" + err.message + ")");
-        }
-      };
-
       const simulationData = useMemo(() => {
         const i = medicalInflation / 100;
         const startAge = bundleStartAge; 
@@ -497,6 +486,19 @@
 
       const formatCurrency = (val) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(val);
 
+      const getPlanDisplayName = (pId, ded) => {
+        if(!planData[pId]) return '';
+        const name = planData[pId].name;
+        if (planData[pId].deductibles.length <= 1) {
+            return name;
+        }
+        const dedText = ded === 0 ? '$0 自付' : `自付 $${ded.toLocaleString()}`;
+        return `${name} [${dedText}]`;
+      };
+
+      const plan1Display = enablePlan1B ? `${getPlanDisplayName(plan1, ded1)} & ${getPlanDisplayName(plan1B, ded1B)}` : getPlanDisplayName(plan1, ded1);
+      const plan2Display = enablePlan2B ? `${getPlanDisplayName(plan2, ded2)} & ${getPlanDisplayName(plan2B, ded2B)}` : getPlanDisplayName(plan2, ded2);
+
       const renderInfographic = () => {
         const { startAge, totalMedicalWithdrawal_Infographic } = simulationData;
         const withdrawalYears = coverageTill - startAge + 1;
@@ -541,6 +543,24 @@
                      專屬財富傳承與醫療融資藍圖
                    </h1>
                    <p className="text-xl text-slate-600 mt-3 font-bold tracking-wide">只需投入短期儲蓄，如果想 {startAge} 歲起由紅利代繳終身醫療保費</p>
+                   
+                   {/* 醫療計劃顯示區塊 */}
+                   <div className="mt-5 flex flex-wrap justify-center items-center gap-2 text-sm z-10">
+                        <div className="bg-slate-800 text-[#d4af37] px-4 py-2 rounded-xl border border-slate-700 shadow-md flex items-center gap-2">
+                            <HeartPulse className="w-4 h-4" />
+                            <span className="font-bold">現時計劃：</span>
+                            <span className="text-white">{plan1Display}</span>
+                        </div>
+                        {enableSwitch && (
+                            <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-400 mx-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <div className="bg-slate-800 text-[#d4af37] px-4 py-2 rounded-xl border border-slate-700 shadow-md flex items-center gap-2">
+                                    <span className="font-bold">{switchAge} 歲轉換為：</span>
+                                    <span className="text-white">{plan2Display}</span>
+                                </div>
+                            </>
+                        )}
+                   </div>
                 </div>
 
                 <div className="w-[90%] max-w-6xl mx-auto bg-gradient-to-r from-[#0f141e] via-[#1a2233] to-[#0f141e] border border-[#d4af37]/40 rounded-3xl p-5 shrink-0 flex items-center justify-between shadow-2xl relative overflow-hidden mt-3">
@@ -629,7 +649,7 @@
                     {/* 卡片 3 (香檳金 - 淺色尊貴版) */}
                     <div className="flex-1 bg-gradient-to-b from-amber-50/50 to-white border border-[#d4af37]/30 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
                         <div className="bg-gradient-to-r from-[#c5a059] via-[#aa8222] to-[#c5a059] text-white text-center py-4 font-black text-xl tracking-widest border-b border-[#d4af37]/30 shadow-md backdrop-blur-sm">
-                            STEP 3: 財傳傳承
+                            STEP 3: 財富傳承
                         </div>
                         <div className="p-6 flex flex-col items-center justify-center flex-1 text-center">
                             <PiggyBank className="w-14 h-14 text-[#c5a059] mb-4 opacity-90" />
@@ -854,9 +874,11 @@
                             <select value={plan1} onChange={(e)=>handlePlanChange(e, setPlan1, setDed1)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                               {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                             </select>
-                            <select value={ded1} onChange={(e) => setDed1(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
-                              {planData[plan1]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
-                            </select>
+                            {planData[plan1]?.deductibles.length > 1 && (
+                              <select value={ded1} onChange={(e) => setDed1(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                {planData[plan1]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                              </select>
+                            )}
                           </div>
 
                           {/* 附加計劃 1B */}
@@ -869,9 +891,11 @@
                               <select value={plan1B} onChange={(e)=>handlePlanChange(e, setPlan1B, setDed1B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                 {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                               </select>
-                              <select value={ded1B} onChange={(e) => setDed1B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
-                                {planData[plan1B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
-                              </select>
+                              {planData[plan1B]?.deductibles.length > 1 && (
+                                <select value={ded1B} onChange={(e) => setDed1B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                  {planData[plan1B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                                </select>
+                              )}
                             </div>
                           )}
 
@@ -893,9 +917,11 @@
                                   <select value={plan2} onChange={(e)=>handlePlanChange(e, setPlan2, setDed2)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                     {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                                   </select>
-                                  <select value={ded2} onChange={(e) => setDed2(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
-                                    {planData[plan2]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
-                                  </select>
+                                  {planData[plan2]?.deductibles.length > 1 && (
+                                    <select value={ded2} onChange={(e) => setDed2(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                      {planData[plan2]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                                    </select>
+                                  )}
                                 </div>
 
                                 {/* 附加轉換計劃 2B */}
@@ -908,9 +934,11 @@
                                     <select value={plan2B} onChange={(e)=>handlePlanChange(e, setPlan2B, setDed2B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                       {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                                     </select>
-                                    <select value={ded2B} onChange={(e) => setDed2B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
-                                      {planData[plan2B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
-                                    </select>
+                                    {planData[plan2B]?.deductibles.length > 1 && (
+                                      <select value={ded2B} onChange={(e) => setDed2B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                        {planData[plan2B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
+                                      </select>
+                                    )}
                                   </div>
                                 )}
                               </>
@@ -1159,16 +1187,31 @@
                 
                 <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-8">
                     
-                    <div className="flex justify-between items-center mb-6 shrink-0">
-                        <div>
+                    <div className="flex justify-between items-start mb-6 shrink-0">
+                        <div className="flex-1 pr-4">
                             <h1 className="text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide">
                                 終身醫療保費 vs 醫療儲備提取展示
                             </h1>
                             <p className="text-[#a8b8d0] mt-2 font-bold tracking-wide">
                                 視覺化驗證：每一年的提取金額是否能完美覆蓋當年的通脹醫療保費
                             </p>
+                            {/* 醫療計劃顯示區塊 (階段 5) */}
+                            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                                <div className="bg-[#1a1f2b] text-[#a8b8d0] px-3 py-2 rounded-lg border border-[#d4af37]/20 flex items-center gap-2 shadow-inner">
+                                    <HeartPulse className="w-4 h-4 text-[#d4af37]" />
+                                    <span><span className="text-[#d4af37] font-bold">現時計劃：</span><span className="text-white">{plan1Display}</span></span>
+                                </div>
+                                {enableSwitch && (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                        <div className="bg-[#1a1f2b] text-[#a8b8d0] px-3 py-2 rounded-lg border border-[#d4af37]/20 flex items-center gap-2 shadow-inner">
+                                            <span><span className="text-[#d4af37] font-bold">{switchAge}歲轉換為：</span><span className="text-white">{plan2Display}</span></span>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 shrink-0">
                             <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner">
                                 <span className="text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
                                 <span className="text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
