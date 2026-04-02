@@ -237,7 +237,7 @@
     const buildFullArray = (sparsePoints) => {
       const arr = [];
       sparsePoints.sort((a, b) => a.age - b.age);
-      for (let age = 0; age <= 100; age++) {
+      for (let age = 0; age <= 99; age++) { // 限制只生成 0-99 歲保費，自動刪除 100 歲數據
         const exact = sparsePoints.find(p => p.age === age);
         if (exact) {
           arr.push({age, val: exact.val});
@@ -290,7 +290,7 @@
       const [parseMessage, setParseMessage] = useState({ text: "", type: "" });
       const [jsonText, setJsonText] = useState("");
       const [jsonError, setJsonError] = useState("");
-
+      
       const getPremium = (planId, deductible, gender, age) => {
         const plan = planData[planId];
         if (!plan) return 0;
@@ -304,17 +304,17 @@
       const [currentAge, setCurrentAge] = useState(28); 
       const [gender, setGender] = useState('M');
       const [coverageTill, setCoverageTill] = useState(90); 
-      const [bundleStartAge, setBundleStartAge] = useState(62);
+      const [bundleStartAge, setBundleStartAge] = useState(60); // 預設改為 60 歲
       const [usdRate, setUsdRate] = useState(7.8);
       const [medicalInflation, setMedicalInflation] = useState(3.0);
       
-      const [plan1, setPlan1] = useState('vPrime');
-      const [ded1, setDed1] = useState(100000);
+      const [plan1, setPlan1] = useState('vPrime'); // 預設為 尊衛您 (寰譽版) - 標準
+      const [ded1, setDed1] = useState(25000); // 預設自付 $25,000
       const [enablePlan1B, setEnablePlan1B] = useState(false);
       const [plan1B, setPlan1B] = useState('vFamily');
       const [ded1B, setDed1B] = useState(0);
 
-      const [enableSwitch, setEnableSwitch] = useState(true);
+      const [enableSwitch, setEnableSwitch] = useState(false); // 預設先不用選「轉換計劃」
       const [switchAge, setSwitchAge] = useState(65);
       const [plan2, setPlan2] = useState('vPrime');
       const [ded2, setDed2] = useState(0);
@@ -323,7 +323,7 @@
       const [ded2B, setDed2B] = useState(0);
 
       // --- 階段 3 參數 ---
-      const [savingsPlanName, setSavingsPlanName] = useState('盈聚天下計劃');
+      const [savingsPlanName, setSavingsPlanName] = useState('盈聚天下計劃 II');
       const [premiumTerm, setPremiumTerm] = useState(5);
       const [annualPremiumUSD, setAnnualPremiumUSD] = useState(16000);
       const [promoDiscount1Pct, setPromoDiscount1Pct] = useState(0); 
@@ -488,12 +488,17 @@
           
           let roundedG = Math.round(g * 1000) / 1000; 
           let firstYearW = 0;
-          if (roundedG <= 0 || isNaN(roundedG)) {
-              firstYearW = blockTotal / yearsInBlock;
-              roundedG = 0;
-          } else {
-              firstYearW = blockTotal * roundedG / (Math.pow(1 + roundedG, yearsInBlock) - 1);
+          
+          // 永久啟用保守模式：確保提取額 ≥ 保費
+          let maxRequiredW0 = 0;
+          if (roundedG <= 0 || isNaN(roundedG)) roundedG = 0;
+          for(let a = currStart; a <= currEnd; a++) {
+              const yearInBlock = a - currStart;
+              const prem = futurePremiums.find(x => x.age === a)?.premium || 0;
+              const requiredW0 = prem / Math.pow(1 + roundedG, yearInBlock);
+              if (requiredW0 > maxRequiredW0) maxRequiredW0 = requiredW0;
           }
+          firstYearW = maxRequiredW0;
           
           smartBlocks.push({
             startYear: currStart - currentAge + 1,
@@ -508,6 +513,8 @@
         }
 
         const chartData = [];
+        let totalMedicalWithdrawal_Infographic = 0;
+        
         for (let age = currentAge; age <= coverageTill; age++) {
           const p = futurePremiums.find(d => d.age === age)?.premium || 0;
           let dataPoint = { age, '預期醫療保費': Math.round(p) };
@@ -518,6 +525,7 @@
                  const yearInBlock = age - block.startAge;
                  const currentW = block.hkd * Math.pow(1 + (block.incrementRate / 100), yearInBlock);
                  dataPoint['醫療儲備提取'] = Math.round(currentW);
+                 totalMedicalWithdrawal_Infographic += currentW;
              } else {
                  dataPoint['醫療儲備提取'] = 0;
              }
@@ -527,7 +535,7 @@
           chartData.push(dataPoint);
         }
 
-        const totalMedicalWithdrawal_Infographic = Math.round(hedgedInflated);
+        totalMedicalWithdrawal_Infographic = Math.round(totalMedicalWithdrawal_Infographic);
 
         return {
           chartData,
@@ -903,7 +911,11 @@
                            </div>
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">保障期至實際年齡 (Coverage Till)</span>
-                             <input type="number" value={coverageTill} onChange={(e) => setCoverageTill(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                             <input type="number" max="99" value={coverageTill} onChange={(e) => {
+                                let val = parseInt(e.target.value);
+                                if (val > 99) val = 99; // 限制最大輸入為 99 歲
+                                setCoverageTill(val);
+                             }} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">融資啟動年齡 (Starts Age)</span>
