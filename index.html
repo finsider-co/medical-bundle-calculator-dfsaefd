@@ -25,10 +25,11 @@
   <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
 
   <style>
-    body { margin: 0; padding: 0; background-color: #0B1120; font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang HK', 'Microsoft YaHei', sans-serif; }
-    #root { width: 100vw; height: 100vh; overflow: hidden; }
+    /* 解除全螢幕鎖定，允許小螢幕自然捲動 */
+    body { margin: 0; padding: 0; background-color: #0B1120; font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang HK', 'Microsoft YaHei', sans-serif; overflow-x: hidden; }
+    #root { width: 100vw; min-height: 100vh; }
     
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #1E293B; border-radius: 4px; }
     ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #E6C280; }
@@ -40,7 +41,6 @@
       background-size: 200% auto;
     }
 
-    /* 強制將數字輸入欄的上下箭頭轉為白色並增加與數字的安全距離 */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       -webkit-appearance: inner-spin-button !important;
@@ -787,29 +787,29 @@
       };
 
       return (
-        <div className={`w-full h-screen flex flex-col justify-center items-center overflow-hidden transition-colors duration-500 ${currentStep >= 4 ? 'bg-[#0B1120]' : 'bg-[#0B1120]'}`}>
+        <div className={`w-full min-h-screen flex flex-col items-center overflow-x-hidden transition-colors duration-500 ${currentStep >= 4 ? 'bg-[#0B1120]' : 'bg-[#0B1120]'}`}>
           
           {/* --- 數據庫編輯器 Modal --- */}
           {isEditingData && (
-            <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div className="bg-[#0f141e] border border-[#d4af37]/50 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.2)] w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
-                    <div className="flex justify-between items-center p-5 border-b border-[#d4af37]/20 bg-[#1a1f2b]">
-                        <h2 className="text-xl font-bold text-[#d4af37] flex items-center gap-2"><Database className="w-6 h-6" /> 編輯保費數據庫</h2>
+            <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 lg:p-6 backdrop-blur-sm">
+                <div className="bg-[#0f141e] border border-[#d4af37]/50 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.2)] w-full max-w-4xl h-[90vh] lg:h-[85vh] flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center p-4 lg:p-5 border-b border-[#d4af37]/20 bg-[#1a1f2b]">
+                        <h2 className="text-lg lg:text-xl font-bold text-[#d4af37] flex items-center gap-2"><Database className="w-5 h-5 lg:w-6 lg:h-6" /> 編輯保費數據庫</h2>
                         <button onClick={() => setIsEditingData(false)} className="text-slate-400 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></button>
                     </div>
                     
                     <div className="flex border-b border-[#d4af37]/20 bg-[#0f141e]">
-                        <button onClick={() => setEditorMode('excel')} className={`flex-1 py-3 font-bold flex items-center justify-center gap-2 ${editorMode === 'excel' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
-                            <FileSpreadsheet className="w-5 h-5" /> Excel 全量貼上模式
+                        <button onClick={() => setEditorMode('excel')} className={`flex-1 py-3 text-sm lg:text-base font-bold flex items-center justify-center gap-2 ${editorMode === 'excel' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
+                            <FileSpreadsheet className="w-4 h-4 lg:w-5 lg:h-5" /> Excel 貼上模式
                         </button>
-                        <button onClick={() => setEditorMode('json')} className={`flex-1 py-3 font-bold flex items-center justify-center gap-2 ${editorMode === 'json' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
-                            <CodeIcon className="w-5 h-5" /> 進階 JSON 編輯
+                        <button onClick={() => setEditorMode('json')} className={`flex-1 py-3 text-sm lg:text-base font-bold flex items-center justify-center gap-2 ${editorMode === 'json' ? 'text-[#111] bg-gradient-to-r from-[#E6C280] to-[#D4AF37]' : 'text-slate-400 hover:text-[#d4af37]'}`}>
+                            <CodeIcon className="w-4 h-4 lg:w-5 lg:h-5" /> JSON 編輯模式
                         </button>
                     </div>
 
                     {editorMode === 'excel' ? (
-                        <div className="flex-1 p-5 overflow-hidden flex flex-col relative gap-4 bg-[#0a0d14]">
-                            <div className="flex gap-4">
+                        <div className="flex-1 p-4 lg:p-5 overflow-hidden flex flex-col relative gap-4 bg-[#0a0d14]">
+                            <div className="flex flex-col lg:flex-row gap-4">
                                 <div className="flex-1">
                                     <label className="text-xs text-[#a8b8d0] mb-1 block">選擇醫療計劃</label>
                                     <select value={editPlanId} onChange={handleEditPlanChange} className="w-full bg-[#1a1f2b] text-[#f3e5ab] font-bold rounded px-3 py-2 border border-[#d4af37]/40 outline-none focus:border-[#d4af37]">
@@ -824,43 +824,43 @@
                                 </div>
                             </div>
                             
-                            <div className="text-sm text-[#d4af37] bg-[#d4af37]/10 p-3 rounded-lg border border-[#d4af37]/20">
-                                💡 <b>終極精確提示：</b>為了讓系統不再使用任何插值或平均法，請直接從您的保險 Excel 複製 <b>實際年齡 (0-100)</b> 與 <b>對應保費</b> 這兩欄，全量貼上於下方。系統會將 101 年的數據 100% 絕對鎖定！
+                            <div className="text-xs lg:text-sm text-[#d4af37] bg-[#d4af37]/10 p-3 rounded-lg border border-[#d4af37]/20">
+                                💡 <b>終極精確提示：</b>直接從您的保險 Excel 複製 <b>實際年齡 (0-100)</b> 與 <b>對應保費</b> 這兩欄，全量貼上於下方。
                             </div>
 
                             <textarea 
                                 value={excelText} 
                                 onChange={(e) => setExcelText(e.target.value)}
                                 placeholder="請在此貼上 0-100 歲完整的 Excel 數據..."
-                                className="flex-1 bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none whitespace-pre"
+                                className="flex-1 w-full bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none whitespace-pre"
                                 spellCheck="false"
                             ></textarea>
 
-                            <div className="flex justify-between items-center mt-2">
-                                <div className="font-bold text-sm">
+                            <div className="flex flex-col lg:flex-row justify-between items-center mt-2 gap-3 lg:gap-0">
+                                <div className="font-bold text-sm text-center lg:text-left">
                                     {parseMessage.text && <span className={parseMessage.type === 'error' ? 'text-red-400' : 'text-emerald-400'}>{parseMessage.text}</span>}
                                 </div>
-                                <button onClick={handleApplyExcel} className="bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-6 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">
+                                <button onClick={handleApplyExcel} className="w-full lg:w-auto bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-6 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">
                                     覆蓋並套用至此類別
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col relative bg-[#0a0d14]">
-                            <div className="p-4 bg-[#1a1f2b]/50 text-sm text-[#a8b8d0] border-b border-[#d4af37]/10">
+                            <div className="p-3 lg:p-4 bg-[#1a1f2b]/50 text-xs lg:text-sm text-[#a8b8d0] border-b border-[#d4af37]/10">
                                 <p>您可以在下方直接編輯所有醫療計劃的保費數據。格式為 JSON。若要增加新計劃，請依照現有結構複製並修改 <code>rates</code> 中的年齡與保費。</p>
                             </div>
-                            <div className="flex-1 p-5 overflow-hidden flex flex-col relative">
+                            <div className="flex-1 p-3 lg:p-5 overflow-hidden flex flex-col relative">
                                 {jsonError && <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-[#1a1f2b] text-[#d4af37] border border-[#d4af37] px-4 py-2 rounded shadow-lg z-10 font-bold">{jsonError}</div>}
                                 <textarea 
                                     value={jsonText} 
                                     onChange={(e) => setJsonText(e.target.value)}
-                                    className="w-full h-full bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none"
+                                    className="w-full h-full bg-[#1a1f2b] text-[#f3e5ab] font-mono text-sm p-3 lg:p-4 rounded-xl border border-[#d4af37]/30 outline-none focus:border-[#d4af37] resize-none"
                                     spellCheck="false"
                                 ></textarea>
                             </div>
-                            <div className="p-5 border-t border-[#d4af37]/20 bg-[#1a1f2b] flex justify-end gap-3">
-                                <button onClick={saveJsonPlanData} className="bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-8 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">儲存 JSON 變更</button>
+                            <div className="p-4 border-t border-[#d4af37]/20 bg-[#1a1f2b] flex justify-end gap-3">
+                                <button onClick={saveJsonPlanData} className="w-full lg:w-auto bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] px-8 py-2 rounded-lg font-bold shadow-md hover:scale-105 transition-transform">儲存 JSON 變更</button>
                             </div>
                         </div>
                     )}
@@ -868,55 +868,55 @@
             </div>
           )}
 
-          <div className={`relative w-full max-w-[1920px] aspect-video flex flex-col overflow-hidden transition-all duration-500 ${currentStep >= 4 ? 'bg-transparent p-0 border-0 shadow-none' : 'bg-[#0B1120] p-6 box-border border border-[#d4af37]/20 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.05)]'}`}>
+          <div className={`relative w-full max-w-[1920px] flex-1 flex flex-col transition-all duration-500 ${currentStep >= 4 ? 'bg-transparent p-0 border-0 shadow-none' : 'bg-[#0B1120] p-3 lg:p-6 box-border border-0 lg:border border-[#d4af37]/20 lg:rounded-2xl lg:shadow-[0_0_50px_rgba(212,175,55,0.05)]'}`}>
             
             {/* --- 階段 1-3 的 UI --- */}
             {currentStep < 4 && (
               <React.Fragment>
                 {/* 頂部 Stepper 與 控制列 */}
-                <div className="flex justify-between items-center w-full bg-[#1a1f2b] rounded-xl p-2 mb-5 border border-[#d4af37]/20 shadow-md shrink-0">
-                    <div className="flex w-4/5">
+                <div className="flex flex-col lg:flex-row justify-between items-center w-full bg-[#1a1f2b] rounded-xl p-2 mb-5 border border-[#d4af37]/20 shadow-md shrink-0 gap-3 lg:gap-0">
+                    <div className="flex flex-wrap justify-center w-full lg:w-4/5 gap-1 lg:gap-2">
                         {[
-                            { id: 1, label: "階段 1: 醫療參數" },
-                            { id: 2, label: "階段 2: SMART提取表" },
-                            { id: 3, label: "階段 3: 儲蓄建議書配對" },
-                            { id: 4, label: "階段 4: 生成尊貴圖表" },
-                            { id: 5, label: "階段 5: 提取對比圖" }
+                            { id: 1, label: "1: 醫療參數" },
+                            { id: 2, label: "2: SMART提取" },
+                            { id: 3, label: "3: 建議書配對" },
+                            { id: 4, label: "4: 尊貴圖表" },
+                            { id: 5, label: "5: 提取對比" }
                         ].map(step => (
                             <button
                                 key={step.id}
                                 onClick={() => setCurrentStep(step.id)}
-                                className={`flex-1 py-2 text-[15px] font-bold rounded-lg transition-all ${currentStep === step.id ? 'bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] shadow-md' : 'text-slate-400 hover:text-[#d4af37] hover:bg-[#0f141e]'}`}
+                                className={`flex-1 min-w-[30%] lg:min-w-[120px] py-2 text-[13px] lg:text-[15px] font-bold rounded-lg transition-all ${currentStep === step.id ? 'bg-gradient-to-r from-[#E6C280] to-[#D4AF37] text-[#111] shadow-md' : 'text-slate-400 hover:text-[#d4af37] hover:bg-[#0f141e]'}`}
                             >
                                 {step.label}
                             </button>
                         ))}
                     </div>
-                    <div className="pr-4 pl-2">
-                        <button onClick={openDataEditor} className="flex items-center gap-2 text-[#d4af37] hover:text-[#f3e5ab] text-sm font-bold bg-[#0a0d14] px-4 py-2 rounded-lg border border-[#d4af37]/30 transition-colors shadow-sm whitespace-nowrap">
+                    <div className="w-full lg:w-auto px-2 flex justify-center lg:justify-end">
+                        <button onClick={openDataEditor} className="w-full lg:w-auto flex justify-center items-center gap-2 text-[#d4af37] hover:text-[#f3e5ab] text-sm font-bold bg-[#0a0d14] px-4 py-2.5 rounded-lg border border-[#d4af37]/30 transition-colors shadow-sm whitespace-nowrap">
                             <Database className="w-4 h-4" /> 編輯數據庫
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-5 h-full overflow-hidden">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 flex-1 min-h-0">
                   
                   {/* --- 階段 1 & 2 左側面板 (醫療參數) --- */}
                   {(currentStep === 1 || currentStep === 2) && (
-                    <div className="col-span-3 flex flex-col gap-4 h-full overflow-hidden">
+                    <div className="col-span-12 lg:col-span-3 flex flex-col gap-4 h-auto lg:h-full lg:overflow-hidden">
                       <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg shrink-0">
                          <h2 className="text-base font-bold text-[#d4af37] mb-3 border-b border-[#d4af37]/20 pb-2">INPUT 核心參數</h2>
-                         <div className="space-y-2.5">
+                         <div className="space-y-3 lg:space-y-2.5">
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">性別 (Gender)</span>
                              <div className="flex bg-[#d4af37]/10 rounded border border-[#d4af37]/40 p-0.5">
-                               <button onClick={() => setGender('M')} className={`px-3 py-0.5 rounded text-xs font-bold transition-all ${gender === 'M' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>男</button>
-                               <button onClick={() => setGender('F')} className={`px-3 py-0.5 rounded text-xs font-bold transition-all ${gender === 'F' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>女</button>
+                               <button onClick={() => setGender('M')} className={`px-4 lg:px-3 py-1 lg:py-0.5 rounded text-xs font-bold transition-all ${gender === 'M' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>男</button>
+                               <button onClick={() => setGender('F')} className={`px-4 lg:px-3 py-1 lg:py-0.5 rounded text-xs font-bold transition-all ${gender === 'F' ? 'bg-[#d4af37] text-[#111]' : 'text-[#f3e5ab] hover:bg-[#d4af37]/20'}`}>女</button>
                              </div>
                            </div>
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">當前實際年齡 (Attained Age)</span>
-                             <input type="number" value={currentAge} onChange={(e) => setCurrentAge(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                             <input type="number" value={currentAge} onChange={(e) => setCurrentAge(parseInt(e.target.value))} className="w-24 lg:w-20 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1.5 lg:py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">保障期至實際年齡 (Coverage Till)</span>
@@ -924,38 +924,38 @@
                                 let val = parseInt(e.target.value);
                                 if (val > 99) val = 99; // 限制最大輸入為 99 歲
                                 setCoverageTill(val);
-                             }} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                             }} className="w-24 lg:w-20 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1.5 lg:py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                              <span className="text-[#a8b8d0]">融資啟動年齡 (Starts Age)</span>
-                             <input type="number" value={bundleStartAge} onChange={(e) => setBundleStartAge(parseInt(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                             <input type="number" value={bundleStartAge} onChange={(e) => setBundleStartAge(parseInt(e.target.value))} className="w-24 lg:w-20 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1.5 lg:py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
                            </div>
                            <div className="flex justify-between items-center text-sm pb-1">
                              <span className="text-[#a8b8d0]">美元匯率 (USD Rate)</span>
-                             <input type="number" step="0.1" value={usdRate} onChange={(e) => setUsdRate(parseFloat(e.target.value))} className="w-24 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
+                             <input type="number" step="0.1" value={usdRate} onChange={(e) => setUsdRate(parseFloat(e.target.value))} className="w-24 lg:w-20 bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded pl-2 py-1.5 lg:py-1 border border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37] shadow-inner" />
                            </div>
-                           <div className="flex justify-between items-center text-sm pt-1 border-t border-[#d4af37]/20">
+                           <div className="flex justify-between items-center text-sm pt-2 lg:pt-1 border-t border-[#d4af37]/20">
                              <span className="text-[#a8b8d0]">預期通脹率 (Inflation Rate)</span>
-                             <div className="flex w-24 relative shadow-inner">
-                                <input type="number" step="0.1" value={medicalInflation} onChange={(e) => setMedicalInflation(parseFloat(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded-l pl-2 py-1 border-y border-l border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37]" />
-                                <span className="bg-[#d4af37]/10 text-[#f3e5ab] border-y border-r border-[#d4af37]/40 rounded-r px-1 py-1 flex items-center">%</span>
+                             <div className="flex w-24 lg:w-20 relative shadow-inner">
+                                <input type="number" step="0.1" value={medicalInflation} onChange={(e) => setMedicalInflation(parseFloat(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded-l pl-2 py-1.5 lg:py-1 border-y border-l border-[#d4af37]/40 text-right outline-none focus:border-[#d4af37]" />
+                                <span className="bg-[#d4af37]/10 text-[#f3e5ab] border-y border-r border-[#d4af37]/40 rounded-r px-1 py-1.5 lg:py-1 flex items-center">%</span>
                              </div>
                            </div>
                          </div>
                       </div>
 
-                      <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg flex-1 overflow-y-auto">
+                      <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg flex-1 lg:overflow-y-auto">
                         <h2 className="text-base font-bold text-[#d4af37] mb-3 border-b border-[#d4af37]/20 pb-2">Medical Product 醫療計劃</h2>
-                        <div className="space-y-3">
+                        <div className="space-y-4 lg:space-y-3">
                           
                           {/* 主計劃 1 */}
-                          <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/10">
+                          <div className="bg-[#111]/40 p-3 lg:p-2.5 rounded-lg border border-[#d4af37]/10">
                             <label className="text-xs text-[#a8b8d0] mb-1.5 block">現時醫療計劃 (主)</label>
-                            <select value={plan1} onChange={(e)=>handlePlanChange(e, setPlan1, setDed1)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                            <select value={plan1} onChange={(e)=>handlePlanChange(e, setPlan1, setDed1)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-2 lg:mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                               {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                             </select>
                             {planData[plan1]?.deductibles.length > 1 && (
-                              <select value={ded1} onChange={(e) => setDed1(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                              <select value={ded1} onChange={(e) => setDed1(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                 {planData[plan1]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
                               </select>
                             )}
@@ -963,59 +963,59 @@
 
                           {/* 附加計劃 1B */}
                           <div className="flex items-center gap-2 px-1">
-                            <input type="checkbox" id="chkPlan1B" checked={enablePlan1B} onChange={() => setEnablePlan1B(!enablePlan1B)} className="accent-[#d4af37] w-3.5 h-3.5 cursor-pointer" />
-                            <label htmlFor="chkPlan1B" className="text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二醫療計劃</label>
+                            <input type="checkbox" id="chkPlan1B" checked={enablePlan1B} onChange={() => setEnablePlan1B(!enablePlan1B)} className="accent-[#d4af37] w-4 h-4 lg:w-3.5 lg:h-3.5 cursor-pointer" />
+                            <label htmlFor="chkPlan1B" className="text-sm lg:text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二醫療計劃</label>
                           </div>
                           {enablePlan1B && (
-                            <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 animate-in fade-in slide-in-from-top-1">
-                              <select value={plan1B} onChange={(e)=>handlePlanChange(e, setPlan1B, setDed1B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                            <div className="bg-[#111]/40 p-3 lg:p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 animate-in fade-in slide-in-from-top-1">
+                              <select value={plan1B} onChange={(e)=>handlePlanChange(e, setPlan1B, setDed1B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-2 lg:mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                 {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                               </select>
                               {planData[plan1B]?.deductibles.length > 1 && (
-                                <select value={ded1B} onChange={(e) => setDed1B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                <select value={ded1B} onChange={(e) => setDed1B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                   {planData[plan1B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
                                 </select>
                               )}
                             </div>
                           )}
 
-                          <div className="pt-3 border-t border-[#d4af37]/20 mt-2">
+                          <div className="pt-3 border-t border-[#d4af37]/20 mt-3 lg:mt-2">
                             <div className="flex justify-between items-center mb-3">
-                              <label className="text-xs text-[#d4af37] font-bold">轉換計劃 (Conversion Age)</label>
-                              <input type="checkbox" checked={enableSwitch} onChange={() => setEnableSwitch(!enableSwitch)} className="accent-[#d4af37] w-4 h-4 cursor-pointer" />
+                              <label className="text-sm lg:text-xs text-[#d4af37] font-bold">轉換計劃 (Conversion Age)</label>
+                              <input type="checkbox" checked={enableSwitch} onChange={() => setEnableSwitch(!enableSwitch)} className="accent-[#d4af37] w-5 h-5 lg:w-4 lg:h-4 cursor-pointer" />
                             </div>
                             {enableSwitch ? (
                               <>
-                                <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-3 lg:gap-2 mb-4 lg:mb-3">
                                   <input type="range" min={0} max={coverageTill - 1} value={switchAge} onChange={(e) => setSwitchAge(parseInt(e.target.value))} className="flex-1 accent-[#d4af37]" />
                                   <span className="bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1 border border-[#d4af37]/40 text-sm w-12 text-center">{switchAge}</span>
                                 </div>
                                 
                                 {/* 轉換主計劃 2 */}
-                                <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/10 mb-2">
+                                <div className="bg-[#111]/40 p-3 lg:p-2.5 rounded-lg border border-[#d4af37]/10 mb-2">
                                   <label className="text-xs text-[#a8b8d0] mb-1.5 block">轉換後醫療計劃 (主)</label>
-                                  <select value={plan2} onChange={(e)=>handlePlanChange(e, setPlan2, setDed2)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                  <select value={plan2} onChange={(e)=>handlePlanChange(e, setPlan2, setDed2)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-2 lg:mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                     {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                                   </select>
                                   {planData[plan2]?.deductibles.length > 1 && (
-                                    <select value={ded2} onChange={(e) => setDed2(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                    <select value={ded2} onChange={(e) => setDed2(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                       {planData[plan2]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
                                     </select>
                                   )}
                                 </div>
 
                                 {/* 附加轉換計劃 2B */}
-                                <div className="flex items-center gap-2 px-1">
-                                  <input type="checkbox" id="chkPlan2B" checked={enablePlan2B} onChange={() => setEnablePlan2B(!enablePlan2B)} className="accent-[#d4af37] w-3.5 h-3.5 cursor-pointer" />
-                                  <label htmlFor="chkPlan2B" className="text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二轉換計劃</label>
+                                <div className="flex items-center gap-2 px-1 mt-3">
+                                  <input type="checkbox" id="chkPlan2B" checked={enablePlan2B} onChange={() => setEnablePlan2B(!enablePlan2B)} className="accent-[#d4af37] w-4 h-4 lg:w-3.5 lg:h-3.5 cursor-pointer" />
+                                  <label htmlFor="chkPlan2B" className="text-sm lg:text-xs text-[#d4af37] font-bold cursor-pointer">+ 同時配置第二轉換計劃</label>
                                 </div>
                                 {enablePlan2B && (
-                                  <div className="bg-[#111]/40 p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 mt-2 animate-in fade-in slide-in-from-top-1">
-                                    <select value={plan2B} onChange={(e)=>handlePlanChange(e, setPlan2B, setDed2B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                  <div className="bg-[#111]/40 p-3 lg:p-2.5 rounded-lg border border-[#d4af37]/20 border-l-2 border-l-[#d4af37] ml-2 mt-2 animate-in fade-in slide-in-from-top-1">
+                                    <select value={plan2B} onChange={(e)=>handlePlanChange(e, setPlan2B, setDed2B)} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none mb-2 lg:mb-1.5 text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                       {Object.entries(planData).map(([key, data]) => <option key={key} value={key} className="bg-slate-800 text-white">{data.name}</option>)}
                                     </select>
                                     {planData[plan2B]?.deductibles.length > 1 && (
-                                      <select value={ded2B} onChange={(e) => setDed2B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
+                                      <select value={ded2B} onChange={(e) => setDed2B(Number(e.target.value))} className="w-full bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/40 focus:outline-none text-ellipsis overflow-hidden whitespace-nowrap focus:border-[#d4af37]">
                                         {planData[plan2B]?.deductibles.map(d => <option key={d} value={d} className="bg-slate-800 text-white">{d === 0 ? '$0 自付' : `自付 $${d.toLocaleString()}`}</option>)}
                                       </select>
                                     )}
@@ -1023,7 +1023,7 @@
                                 )}
                               </>
                             ) : (
-                              <div className="w-full bg-slate-800/50 text-slate-500 rounded px-2 py-1.5 text-sm border border-[#d4af37]/20 text-center mt-2">N/A</div>
+                              <div className="w-full bg-slate-800/50 text-slate-500 rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/20 text-center mt-2">N/A</div>
                             )}
                           </div>
                         </div>
@@ -1034,75 +1034,77 @@
                   {/* --- 階段 1: 預覽圖表 --- */}
                   {currentStep === 1 && (
                     <React.Fragment>
-                      <div className="col-span-3 flex flex-col h-full gap-4">
+                      <div className="col-span-12 lg:col-span-3 flex flex-col h-auto lg:h-full gap-4">
                          <div className="bg-gradient-to-b from-[#1a1f2b] to-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-2xl flex-1 flex flex-col justify-between relative overflow-hidden gap-3">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d4af37]/10 via-[#d4af37] to-[#d4af37]/10 opacity-50"></div>
                             
                             {/* Block 1: 總保費 */}
-                            <div className="flex items-start gap-3 p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner">
-                                <div className="bg-[#a8b8d0]/10 p-2.5 rounded-xl shrink-0">
+                            <div className="flex items-start gap-3 p-4 lg:p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner">
+                                <div className="bg-[#a8b8d0]/10 p-3 lg:p-2.5 rounded-xl shrink-0">
                                     <Target className="w-6 h-6 text-[#a8b8d0]" />
                                 </div>
                                 <div className="flex flex-col flex-1 justify-center">
-                                    <span className="text-[#a8b8d0] text-[11px] font-bold tracking-widest uppercase mb-1">至 {coverageTill} 歲醫療總保費</span>
+                                    <span className="text-[#a8b8d0] text-xs lg:text-[11px] font-bold tracking-widest uppercase mb-1">至 {coverageTill} 歲醫療總保費</span>
                                     <div className="flex flex-col">
-                                        <span className="text-[#f3e5ab] text-xl font-black leading-none mb-1">${formatCurrency(simulationData.totalInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
-                                        <span className="text-slate-500 text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.totalBasic)}</span>
+                                        <span className="text-[#f3e5ab] text-2xl lg:text-xl font-black leading-none mb-1.5 lg:mb-1">${formatCurrency(simulationData.totalInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
+                                        <span className="text-slate-500 text-sm lg:text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.totalBasic)}</span>
                                     </div>
                                 </div>
                             </div>
                             
                             {/* Block 2: 自行支付 */}
-                            <div className="flex items-start gap-3 p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner">
-                                <div className="bg-[#a8b8d0]/10 p-2.5 rounded-xl shrink-0">
+                            <div className="flex items-start gap-3 p-4 lg:p-3 rounded-xl bg-[#111]/40 border border-white/5 hover:bg-[#111]/60 transition-all shadow-inner mt-2 lg:mt-0">
+                                <div className="bg-[#a8b8d0]/10 p-3 lg:p-2.5 rounded-xl shrink-0">
                                     <PiggyBank className="w-6 h-6 text-[#a8b8d0]" />
                                 </div>
                                 <div className="flex flex-col flex-1 justify-center">
-                                    <span className="text-[#a8b8d0] text-[11px] font-bold tracking-widest uppercase mb-1">客戶自行支付 (融資前)</span>
+                                    <span className="text-[#a8b8d0] text-xs lg:text-[11px] font-bold tracking-widest uppercase mb-1">客戶自行支付 (融資前)</span>
                                     <div className="flex flex-col">
-                                        <span className="text-[#f3e5ab] text-xl font-black leading-none mb-1">${formatCurrency(simulationData.clientInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
-                                        <span className="text-slate-500 text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.clientBasic)}</span>
+                                        <span className="text-[#f3e5ab] text-2xl lg:text-xl font-black leading-none mb-1.5 lg:mb-1">${formatCurrency(simulationData.clientInflated)} <span className="text-[10px] text-[#d4af37] font-normal tracking-wide">(計通脹)</span></span>
+                                        <span className="text-slate-500 text-sm lg:text-xs line-through leading-none">未計通脹: ${formatCurrency(simulationData.clientBasic)}</span>
                                     </div>
                                 </div>
                             </div>
                             
                             {/* Block 3: 融資代繳 */}
-                            <div className="flex flex-col bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 rounded-xl p-4 border border-[#d4af37]/40 relative shadow-lg mt-auto overflow-hidden">
+                            <div className="flex flex-col bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 rounded-xl p-5 lg:p-4 border border-[#d4af37]/40 relative shadow-lg mt-4 lg:mt-auto overflow-hidden">
                                 <div className="absolute -right-4 -bottom-4 opacity-10">
                                     <HeartPulse className="w-32 h-32 text-[#d4af37]" />
                                 </div>
-                                <span className="text-[#d4af37] text-xs font-bold tracking-widest uppercase mb-3 flex items-center gap-1.5 z-10">
-                                    <HeartPulse className="w-4 h-4"/> 融資計劃代繳總額
+                                <span className="text-[#d4af37] text-sm lg:text-xs font-bold tracking-widest uppercase mb-4 lg:mb-3 flex items-center gap-1.5 z-10">
+                                    <HeartPulse className="w-5 h-5 lg:w-4 lg:h-4"/> 融資計劃代繳總額
                                 </span>
                                 <div className="grid grid-cols-2 gap-2 z-10">
                                     <div className="flex flex-col justify-end">
-                                        <span className="text-[#d4af37]/80 text-[10px] uppercase mb-1 tracking-wider">未計通脹</span>
-                                        <span className="text-[#d4af37] text-lg font-bold leading-none">${formatCurrency(simulationData.hedgedBasic)}</span>
+                                        <span className="text-[#d4af37]/80 text-xs lg:text-[10px] uppercase mb-1 tracking-wider">未計通脹</span>
+                                        <span className="text-[#d4af37] text-xl lg:text-lg font-bold leading-none">${formatCurrency(simulationData.hedgedBasic)}</span>
                                     </div>
-                                    <div className="flex flex-col justify-end border-l border-[#d4af37]/30 pl-3">
-                                        <span className="text-[#f3e5ab] text-[10px] uppercase mb-1 tracking-wider">計算通脹後</span>
-                                        <span className="text-gradient-gold text-[26px] font-black drop-shadow-md leading-none">${formatCurrency(simulationData.hedgedInflated)}</span>
+                                    <div className="flex flex-col justify-end border-l border-[#d4af37]/30 pl-4 lg:pl-3">
+                                        <span className="text-[#f3e5ab] text-xs lg:text-[10px] uppercase mb-1 tracking-wider">計算通脹後</span>
+                                        <span className="text-gradient-gold text-3xl lg:text-[26px] font-black drop-shadow-md leading-none">${formatCurrency(simulationData.hedgedInflated)}</span>
                                     </div>
                                 </div>
                             </div>
                          </div>
                       </div>
-                      <div className="col-span-6 bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg relative min-h-0 flex flex-col">
+                      <div className="col-span-12 lg:col-span-6 bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg relative min-h-[350px] lg:min-h-0 flex flex-col">
                         <h2 className="text-lg font-bold text-center text-[#d4af37] mb-2">預期醫療保費通脹曲線</h2>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <ComposedChart data={simulationData.chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-                            <XAxis dataKey="age" stroke="#a8b8d0" tick={{ fill: '#a8b8d0', fontSize: 12 }} />
-                            <YAxis yAxisId="left" stroke="#a8b8d0" tickFormatter={(val) => `$${formatCurrency(val)}`} tick={{ fontSize: 12 }} width={75} />
-                            <Tooltip contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '8px' }} formatter={(value) => formatCurrency(value)} labelFormatter={(label) => `實際年齡: ${label}歲`} />
-                            <Legend verticalAlign="top" height={30} wrapperStyle={{ color: '#d4af37', fontSize: 12 }}/>
-                            {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
-                              <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 11, offset: 10 }} />
-                            )}
-                            <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動融資提取', fill: '#E6C280', fontSize: 11, offset: 10 }} />
-                            <Area type="monotone" dataKey="預期醫療保費" fill="#d4af37" fillOpacity={0.1} stroke="#d4af37" strokeWidth={3} yAxisId="left" name="通脹醫療保費" />
-                          </ComposedChart>
-                        </ResponsiveContainer>
+                        <div className="flex-1 w-full relative">
+                          <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
+                            <ComposedChart data={simulationData.chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                              <XAxis dataKey="age" stroke="#a8b8d0" tick={{ fill: '#a8b8d0', fontSize: 12 }} />
+                              <YAxis yAxisId="left" stroke="#a8b8d0" tickFormatter={(val) => `$${formatCurrency(val)}`} tick={{ fontSize: 12 }} width={75} />
+                              <Tooltip contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '8px' }} formatter={(value) => formatCurrency(value)} labelFormatter={(label) => `實際年齡: ${label}歲`} />
+                              <Legend verticalAlign="top" height={30} wrapperStyle={{ color: '#d4af37', fontSize: 12 }}/>
+                              {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
+                                <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 11, offset: 10 }} />
+                              )}
+                              <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動融資提取', fill: '#E6C280', fontSize: 11, offset: 10 }} />
+                              <Area type="monotone" dataKey="預期醫療保費" fill="#d4af37" fillOpacity={0.1} stroke="#d4af37" strokeWidth={3} yAxisId="left" name="通脹醫療保費" />
+                            </ComposedChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     </React.Fragment>
                   )}
@@ -1110,65 +1112,65 @@
                   {/* --- 階段 2: SMART 提取表 --- */}
                   {currentStep === 2 && (
                     <React.Fragment>
-                      <div className="col-span-3 flex flex-col h-full gap-4">
-                         <div className="bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/50 shadow-lg flex-1 flex flex-col justify-center text-center px-6">
-                            <HeartPulse className="w-12 h-12 text-[#d4af37] mx-auto mb-4" />
-                            <h2 className="text-xl font-bold text-[#d4af37] mb-2">SMART 智能運算完成</h2>
-                            <div className="space-y-3 text-[#a8b8d0] text-left mt-4">
+                      <div className="col-span-12 lg:col-span-3 flex flex-col h-auto lg:h-full gap-4">
+                         <div className="bg-[#0f141e] rounded-xl p-6 lg:p-4 border border-[#d4af37]/50 shadow-lg flex-1 flex flex-col justify-center text-center">
+                            <HeartPulse className="w-16 h-16 lg:w-12 lg:h-12 text-[#d4af37] mx-auto mb-4" />
+                            <h2 className="text-2xl lg:text-xl font-bold text-[#d4af37] mb-2">SMART 智能運算完成</h2>
+                            <div className="space-y-4 lg:space-y-3 text-[#a8b8d0] text-left mt-4">
                               <div className="flex items-start gap-3">
                                 <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 lg:w-3 lg:h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
-                                <p className="text-sm leading-relaxed">系統已自動將保費分為 <b className="text-[#f3e5ab]">10年一組</b>。</p>
+                                <p className="text-base lg:text-sm leading-relaxed">系統已自動將保費分為 <b className="text-[#f3e5ab]">10年一組</b>。</p>
                               </div>
                               <div className="flex items-start gap-3">
                                 <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 lg:w-3 lg:h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
-                                <p className="text-sm leading-relaxed">系統已反推每組的 <b className="text-[#f3e5ab]">最佳遞增率 (CAGR)</b>。</p>
+                                <p className="text-base lg:text-sm leading-relaxed">系統已反推每組的 <b className="text-[#f3e5ab]">最佳遞增率 (CAGR)</b>。</p>
                               </div>
                               <div className="flex items-start gap-3">
                                 <div className="mt-1 bg-[#d4af37]/20 p-1 rounded-full shrink-0 shadow-inner border border-[#d4af37]/30">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 lg:w-3 lg:h-3 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
-                                <p className="text-sm leading-relaxed">首年提取額與遞增率可完美覆蓋該區塊的通脹醫療開支。</p>
+                                <p className="text-base lg:text-sm leading-relaxed">首年提取額與遞增率可完美覆蓋該區塊的通脹醫療開支。</p>
                               </div>
-                              <div className="bg-gradient-to-br from-[#1a1f2b] to-[#0f141e] p-4 rounded-xl border border-[#d4af37]/30 mt-6 text-center shadow-lg relative overflow-hidden">
+                              <div className="bg-gradient-to-br from-[#1a1f2b] to-[#0f141e] p-5 lg:p-4 rounded-xl border border-[#d4af37]/30 mt-8 lg:mt-6 text-center shadow-lg relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
-                                <p className="text-[#d4af37] font-black text-xs tracking-widest uppercase mb-1.5 flex items-center justify-center gap-1">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <p className="text-[#d4af37] font-black text-sm lg:text-xs tracking-widest uppercase mb-2 flex items-center justify-center gap-1">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                   NEXT STEP
                                 </p>
-                                <p className="text-xs text-slate-400">請將右方表格數據直接輸入公司的 SMART 系統中，並生成建議書。</p>
+                                <p className="text-sm lg:text-xs text-slate-400">請將右方表格數據直接輸入公司的 SMART 系統中，並生成建議書。</p>
                               </div>
                             </div>
                          </div>
                       </div>
-                      <div className="col-span-6 bg-[#fdfbf7] rounded-xl border border-[#d4af37]/40 shadow-lg flex flex-col overflow-hidden min-h-0">
-                        <div className="bg-[#111] py-3 px-4 border-b border-[#d4af37] flex justify-between items-center shrink-0">
-                          <h2 className="text-base font-bold text-[#d4af37] flex items-center gap-2"><Landmark className="w-5 h-5"/> SMART 系統專用提取數據</h2>
+                      <div className="col-span-12 lg:col-span-6 bg-[#fdfbf7] rounded-xl border border-[#d4af37]/40 shadow-lg flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
+                        <div className="bg-[#111] py-4 lg:py-3 px-5 lg:px-4 border-b border-[#d4af37] flex justify-between items-center shrink-0">
+                          <h2 className="text-lg lg:text-base font-bold text-[#d4af37] flex items-center gap-2"><Landmark className="w-5 h-5"/> SMART 系統專用提取數據</h2>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2">
-                          <table className="w-full text-sm text-center border-collapse">
+                        <div className="flex-1 overflow-x-auto overflow-y-auto p-2 w-full">
+                          <table className="w-full text-sm text-center border-collapse min-w-[600px]">
                             <thead className="bg-[#fdfbf7] sticky top-0 border-b border-[#d4af37]/30 z-10">
                               <tr>
-                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal starts<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
-                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal ends<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
-                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Attained Age<br/><span className="text-[10px] font-normal text-slate-400">(Reference)</span></th>
-                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(HKD)</span></th>
-                                <th className="py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(USD)</span></th>
-                                <th className="py-2.5 font-bold text-[#8b6508] font-sans">Increment Rate<br/><span className="text-[10px] font-normal text-slate-400">(%)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal starts<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal ends<br/><span className="text-[10px] font-normal text-slate-400">(Policy Year)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Attained Age<br/><span className="text-[10px] font-normal text-slate-400">(Reference)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(HKD)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] border-r border-[#d4af37]/20 font-sans">Withdrawal amount<br/><span className="text-[10px] font-normal text-slate-400">(USD)</span></th>
+                                <th className="py-3 lg:py-2.5 font-bold text-[#8b6508] font-sans">Increment Rate<br/><span className="text-[10px] font-normal text-slate-400">(%)</span></th>
                               </tr>
                             </thead>
                             <tbody>
                               {simulationData.smartBlocks.map((block, idx) => (
                                 <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#fdfbf7]'} border-b border-slate-100 hover:bg-[#fff7e6] transition-colors`}>
-                                  <td className="py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.startYear}</td>
-                                  <td className="py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.endYear}</td>
-                                  <td className="py-3 text-slate-400 text-xs border-r border-slate-100">{block.startAge} 歲 ~ {block.endAge} 歲</td>
-                                  <td className="py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-lg">{formatCurrency(block.hkd)}</td>
-                                  <td className="py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-lg">{formatCurrency(block.usd)}</td>
-                                  <td className="py-3 font-extrabold text-[#8b6508] text-lg">{block.incrementRate.toFixed(1)}%</td>
+                                  <td className="py-4 lg:py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.startYear}</td>
+                                  <td className="py-4 lg:py-3 text-slate-700 border-r border-slate-100 text-lg font-bold">{block.endYear}</td>
+                                  <td className="py-4 lg:py-3 text-slate-400 text-xs border-r border-slate-100">{block.startAge} 歲 ~ {block.endAge} 歲</td>
+                                  <td className="py-4 lg:py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-xl lg:text-lg">{formatCurrency(block.hkd)}</td>
+                                  <td className="py-4 lg:py-3 font-extrabold text-[#b8860b] border-r border-slate-100 text-xl lg:text-lg">{formatCurrency(block.usd)}</td>
+                                  <td className="py-4 lg:py-3 font-extrabold text-[#8b6508] text-xl lg:text-lg">{block.incrementRate.toFixed(1)}%</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -1181,42 +1183,42 @@
                   {/* --- 階段 3: 儲蓄建議書配對 --- */}
                   {currentStep === 3 && (
                     <React.Fragment>
-                      <div className="col-span-4 bg-[#0f141e] rounded-xl p-6 border border-[#d4af37]/40 shadow-lg flex flex-col h-full">
+                      <div className="col-span-12 lg:col-span-4 bg-[#0f141e] rounded-xl p-6 border border-[#d4af37]/40 shadow-lg flex flex-col h-auto lg:h-full">
                          <h2 className="text-xl font-bold text-[#d4af37] mb-5 border-b border-[#d4af37]/30 pb-3 flex items-center gap-2"><FileText className="w-5 h-5"/> 儲蓄保險建議書數據</h2>
                          <p className="text-[#a8b8d0] text-sm mb-6">請輸入您剛才在系統跑出的建議書最終數據 (美元)。</p>
-                         <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                         <div className="space-y-5 lg:space-y-4 flex-1 lg:overflow-y-auto pr-2">
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">儲蓄計劃名稱</span>
-                               <input type="text" value={savingsPlanName} onChange={e => setSavingsPlanName(e.target.value)} className="w-40 bg-[#1a1f2b] text-white font-bold rounded px-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="text" value={savingsPlanName} onChange={e => setSavingsPlanName(e.target.value)} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded px-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">供款年期 (年)</span>
-                               <input type="number" value={premiumTerm} onChange={e => setPremiumTerm(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="number" value={premiumTerm} onChange={e => setPremiumTerm(Number(e.target.value))} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">每年保費 (USD)</span>
-                               <input type="number" value={annualPremiumUSD} onChange={e => setAnnualPremiumUSD(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="number" value={annualPremiumUSD} onChange={e => setAnnualPremiumUSD(Number(e.target.value))} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">首年保費折扣 (%)</span>
-                               <input type="number" step="0.1" value={promoDiscount1Pct} onChange={e => setPromoDiscount1Pct(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="number" step="0.1" value={promoDiscount1Pct} onChange={e => setPromoDiscount1Pct(Number(e.target.value))} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">次年/額外折扣 (%)</span>
-                               <input type="number" step="0.1" value={promoDiscount2Pct} onChange={e => setPromoDiscount2Pct(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="number" step="0.1" value={promoDiscount2Pct} onChange={e => setPromoDiscount2Pct(Number(e.target.value))} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
                            <div className="flex justify-between items-center text-sm">
                                <span className="text-slate-300">期滿預期價值 (USD)</span>
-                               <input type="number" value={projectedValueUSD} onChange={e => setProjectedValueUSD(Number(e.target.value))} className="w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
+                               <input type="number" value={projectedValueUSD} onChange={e => setProjectedValueUSD(Number(e.target.value))} className="w-48 lg:w-40 bg-[#1a1f2b] text-white font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37]/40 outline-none text-right focus:border-[#d4af37]" />
                            </div>
-                           <div className="flex justify-between items-center text-sm pt-4 border-t border-[#d4af37]/30 mt-2">
+                           <div className="flex justify-between items-center text-sm pt-5 lg:pt-4 border-t border-[#d4af37]/30 mt-4 lg:mt-2">
                                <span className="text-[#f3e5ab] font-bold">轉換匯率 (USD兌HKD)</span>
-                               <input type="number" step="0.01" value={savingsExchangeRate} onChange={e => setSavingsExchangeRate(Number(e.target.value))} className="w-40 bg-[#d4af37]/20 text-[#f3e5ab] font-bold rounded pl-3 py-1.5 border border-[#d4af37] outline-none text-right focus:ring-1 focus:ring-[#d4af37]" />
+                               <input type="number" step="0.01" value={savingsExchangeRate} onChange={e => setSavingsExchangeRate(Number(e.target.value))} className="w-48 lg:w-40 bg-[#d4af37]/20 text-[#f3e5ab] font-bold rounded pl-3 py-2 lg:py-1.5 border border-[#d4af37] outline-none text-right focus:ring-1 focus:ring-[#d4af37]" />
                            </div>
                          </div>
                       </div>
                       
-                      <div className="col-span-4 flex flex-col gap-5 h-full">
+                      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 h-auto lg:h-full">
                          <div className="bg-[#1a1f2b] rounded-xl p-6 border border-[#d4af37]/30 flex-1 flex flex-col justify-center shadow-lg">
                              <div className="text-[#d4af37] mb-2 font-bold flex items-center gap-2"><Target className="w-5 h-5"/> 總保費投入 (Net)</div>
                              <div className="text-4xl font-extrabold text-white tracking-wide drop-shadow-sm">
@@ -1236,13 +1238,13 @@
                          </div>
                       </div>
 
-                      <div className="col-span-4 bg-gradient-to-b from-[#1a1f2b] to-[#0f141e] rounded-xl p-8 border border-[#d4af37]/50 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col items-center justify-center text-center">
+                      <div className="col-span-12 lg:col-span-4 bg-gradient-to-b from-[#1a1f2b] to-[#0f141e] rounded-xl p-8 border border-[#d4af37]/50 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col items-center justify-center text-center mt-2 lg:mt-0">
                            <Presentation className="w-24 h-24 text-[#d4af37] mb-6 drop-shadow-lg opacity-90" />
                            <h2 className="text-3xl font-extrabold text-white mb-4 tracking-wide text-gradient-gold">數據已準備就緒</h2>
                            <p className="text-[#a8b8d0] mb-10 text-lg leading-relaxed">
                                我們已經為您整合了所有醫療保費及儲蓄建議書數據。<br/>點擊下方按鈕，立即生成您的專屬高清醫療融資展示圖表！
                            </p>
-                           <button onClick={() => setCurrentStep(4)} className="bg-gradient-to-r from-[#E6C280] via-[#D4AF37] to-[#AA8222] text-[#111] px-10 py-4 rounded-xl font-black text-2xl shadow-[0_0_30px_rgba(212,175,55,0.3)] hover:scale-105 transition-all duration-300 border border-[#FFF0C0]">
+                           <button onClick={() => setCurrentStep(4)} className="w-full lg:w-auto bg-gradient-to-r from-[#E6C280] via-[#D4AF37] to-[#AA8222] text-[#111] px-10 py-4 rounded-xl font-black text-2xl shadow-[0_0_30px_rgba(212,175,55,0.3)] hover:scale-105 transition-all duration-300 border border-[#FFF0C0]">
                                生成尊貴資訊圖表
                            </button>
                       </div>
@@ -1258,32 +1260,32 @@
 
             {/* --- 階段 5: 提取對比圖 (全螢幕展示) --- */}
             {currentStep === 5 && (
-              <div className="w-full h-full flex flex-col relative px-6 pb-4">
+              <div className="w-full h-full flex flex-col relative px-4 lg:px-6 pb-4">
                 <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
                     <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
                         ← 返回修改
                     </button>
                 </div>
                 
-                <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-8">
+                <div className="flex-1 w-full bg-gradient-to-b from-[#0f141e] to-[#0a0d14] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500 p-4 lg:p-8">
                     
-                    <div className="flex justify-between items-start mb-6 shrink-0">
-                        <div className="flex-1 pr-4">
-                            <h1 className="text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide">
+                    <div className="flex flex-col md:flex-row justify-between items-start mb-6 shrink-0 gap-4 md:gap-0">
+                        <div className="flex-1 pr-0 md:pr-4">
+                            <h1 className="text-2xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#E6C280] to-[#D4AF37] tracking-wide leading-tight">
                                 終身醫療保費 vs 醫療儲備提取展示
                             </h1>
-                            <p className="text-[#a8b8d0] mt-2 font-bold tracking-wide">
+                            <p className="text-[#a8b8d0] mt-2 text-sm lg:text-base font-bold tracking-wide">
                                 視覺化驗證：每一年的提取金額是否能完美覆蓋當年的通脹醫療保費
                             </p>
                             {/* 醫療計劃顯示區塊 (階段 5) */}
-                            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs lg:text-sm">
                                 <div className="bg-[#1a1f2b] text-[#a8b8d0] px-3 py-2 rounded-lg border border-[#d4af37]/20 flex items-center gap-2 shadow-inner">
                                     <HeartPulse className="w-4 h-4 text-[#d4af37]" />
                                     <span><span className="text-[#d4af37] font-bold">現時計劃：</span><span className="text-white">{plan1Display}</span></span>
                                 </div>
                                 {enableSwitch && (
                                     <>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                         <div className="bg-[#1a1f2b] text-[#a8b8d0] px-3 py-2 rounded-lg border border-[#d4af37]/20 flex items-center gap-2 shadow-inner">
                                             <span><span className="text-[#d4af37] font-bold">{switchAge}歲轉換為：</span><span className="text-white">{plan2Display}</span></span>
                                         </div>
@@ -1291,83 +1293,85 @@
                                 )}
                             </div>
                         </div>
-                        <div className="flex gap-4 shrink-0">
-                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner">
-                                <span className="text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
-                                <span className="text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
+                        <div className="flex gap-3 lg:gap-4 shrink-0 w-full md:w-auto">
+                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner flex-1 md:flex-none">
+                                <span className="text-[10px] lg:text-xs text-[#a8b8d0] mb-1">醫療通脹預設</span>
+                                <span className="text-base lg:text-lg font-bold text-[#E6C280]">{medicalInflation}%</span>
                             </div>
-                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner">
-                                <span className="text-xs text-[#a8b8d0] mb-1">融資啟動年齡</span>
-                                <span className="text-lg font-bold text-[#E6C280]">{bundleStartAge} 歲</span>
+                            <div className="bg-[#1a1f2b] border border-[#d4af37]/30 px-4 py-2 rounded-xl flex flex-col items-center justify-center shadow-inner flex-1 md:flex-none">
+                                <span className="text-[10px] lg:text-xs text-[#a8b8d0] mb-1">融資啟動年齡</span>
+                                <span className="text-base lg:text-lg font-bold text-[#E6C280]">{bundleStartAge} 歲</span>
                             </div>
                         </div>
                     </div>
     
-                    <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-6 shadow-inner relative">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-                                <defs>
-                                    <linearGradient id="colorPremium" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-                                <XAxis 
-                                    dataKey="age" 
-                                    stroke="#a8b8d0" 
-                                    tick={{ fill: '#a8b8d0', fontSize: 14 }} 
-                                    tickMargin={10}
-                                    minTickGap={20}
-                                />
-                                <YAxis 
-                                    yAxisId="left" 
-                                    stroke="#a8b8d0" 
-                                    tickFormatter={(val) => `$${formatCurrency(val)}`} 
-                                    tick={{ fontSize: 14 }} 
-                                    width={100} 
-                                />
-                                <Tooltip 
-                                    contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '12px', padding: '12px' }} 
-                                    formatter={(value, name) => [formatCurrency(value), name === '預期醫療保費' ? '預期醫療保費 (計通脹)' : '醫療儲備提取']} 
-                                    labelFormatter={(label) => `實際年齡: ${label}歲`} 
-                                    itemStyle={{ fontSize: '14px', marginTop: '4px' }}
-                                />
-                                <Legend 
-                                    verticalAlign="top" 
-                                    height={40} 
-                                    wrapperStyle={{ color: '#d4af37', fontSize: 14, fontWeight: 'bold' }}
-                                />
-                                
-                                {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
-                                    <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 14, offset: 15 }} />
-                                )}
-                                <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動提取', fill: '#E6C280', fontSize: 14, offset: 15 }} />
-                                
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="預期醫療保費" 
-                                    fill="url(#colorPremium)" 
-                                    stroke="#d4af37" 
-                                    strokeWidth={4} 
-                                    yAxisId="left" 
-                                    name="預期醫療保費" 
-                                    activeDot={{ r: 6, fill: '#E6C280', stroke: '#fff', strokeWidth: 2 }}
-                                />
-                                <Bar 
-                                    dataKey="醫療儲備提取" 
-                                    fill="url(#colorWithdrawal)" 
-                                    yAxisId="left" 
-                                    name="醫療儲備提取" 
-                                    barSize={12}
-                                    radius={[4, 4, 0, 0]}
-                                />
-                            </ComposedChart>
-                        </ResponsiveContainer>
+                    <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-2 lg:p-6 shadow-inner relative min-h-[450px] lg:min-h-0 flex flex-col">
+                        <div className="flex-1 w-full relative">
+                          <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
+                              <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 10, left: 0, bottom: 10 }}>
+                                  <defs>
+                                      <linearGradient id="colorPremium" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
+                                          <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                                      </linearGradient>
+                                      <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                                          <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
+                                      </linearGradient>
+                                  </defs>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                                  <XAxis 
+                                      dataKey="age" 
+                                      stroke="#a8b8d0" 
+                                      tick={{ fill: '#a8b8d0', fontSize: 12 }} 
+                                      tickMargin={10}
+                                      minTickGap={20}
+                                  />
+                                  <YAxis 
+                                      yAxisId="left" 
+                                      stroke="#a8b8d0" 
+                                      tickFormatter={(val) => `$${formatCurrency(val)}`} 
+                                      tick={{ fontSize: 12 }} 
+                                      width={80} 
+                                  />
+                                  <Tooltip 
+                                      contentStyle={{ backgroundColor: '#1a1f2b', borderColor: '#d4af37', color: '#f3e5ab', borderRadius: '12px', padding: '12px', fontSize: '12px' }} 
+                                      formatter={(value, name) => [formatCurrency(value), name === '預期醫療保費' ? '預期保費 (計通脹)' : '醫療儲備提取']} 
+                                      labelFormatter={(label) => `實際年齡: ${label}歲`} 
+                                      itemStyle={{ marginTop: '4px' }}
+                                  />
+                                  <Legend 
+                                      verticalAlign="top" 
+                                      height={40} 
+                                      wrapperStyle={{ color: '#d4af37', fontSize: 12, fontWeight: 'bold' }}
+                                  />
+                                  
+                                  {enableSwitch && switchAge >= currentAge && switchAge <= coverageTill && (
+                                      <ReferenceLine x={switchAge} stroke="#f3e5ab" strokeDasharray="5 5" yAxisId="left" label={{ position: 'insideTopLeft', value: '轉換計劃', fill: '#f3e5ab', fontSize: 12, offset: 15 }} />
+                                  )}
+                                  <ReferenceLine x={bundleStartAge} stroke="#E6C280" strokeDasharray="3 3" yAxisId="left" label={{ position: 'insideTopLeft', value: '啟動提取', fill: '#E6C280', fontSize: 12, offset: 15 }} />
+                                  
+                                  <Area 
+                                      type="monotone" 
+                                      dataKey="預期醫療保費" 
+                                      fill="url(#colorPremium)" 
+                                      stroke="#d4af37" 
+                                      strokeWidth={3} 
+                                      yAxisId="left" 
+                                      name="預期醫療保費" 
+                                      activeDot={{ r: 5, fill: '#E6C280', stroke: '#fff', strokeWidth: 2 }}
+                                  />
+                                  <Bar 
+                                      dataKey="醫療儲備提取" 
+                                      fill="url(#colorWithdrawal)" 
+                                      yAxisId="left" 
+                                      name="醫療儲備提取" 
+                                      barSize={10}
+                                      radius={[4, 4, 0, 0]}
+                                  />
+                              </ComposedChart>
+                          </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
               </div>
