@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finsider 醫療融資系統</title>
+  <title>Finsider 醫療儲備系統</title>
   
   <!-- PWA 與 行動裝置設定 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -246,7 +246,7 @@
     const buildFullArray = (sparsePoints) => {
       const arr = [];
       sparsePoints.sort((a, b) => a.age - b.age);
-      for (let age = 0; age <= 99; age++) { // 限制只生成 0-99 歲保費，自動刪除 100 歲數據
+      for (let age = 0; age <= 99; age++) { 
         const exact = sparsePoints.find(p => p.age === age);
         if (exact) {
           arr.push({age, val: exact.val});
@@ -313,17 +313,17 @@
       const [currentAge, setCurrentAge] = useState(28); 
       const [gender, setGender] = useState('M');
       const [coverageTill, setCoverageTill] = useState(90); 
-      const [bundleStartAge, setBundleStartAge] = useState(60); // 預設改為 60 歲
+      const [bundleStartAge, setBundleStartAge] = useState(60); 
       const [usdRate, setUsdRate] = useState(7.8);
       const [medicalInflation, setMedicalInflation] = useState(3.0);
       
-      const [plan1, setPlan1] = useState('vPrime'); // 預設為 尊衛您 (寰譽版) - 標準
-      const [ded1, setDed1] = useState(25000); // 預設自付 $25,000
+      const [plan1, setPlan1] = useState('vPrime'); 
+      const [ded1, setDed1] = useState(25000); 
       const [enablePlan1B, setEnablePlan1B] = useState(false);
       const [plan1B, setPlan1B] = useState('vFamily');
       const [ded1B, setDed1B] = useState(0);
 
-      const [enableSwitch, setEnableSwitch] = useState(false); // 預設先不用選「轉換計劃」
+      const [enableSwitch, setEnableSwitch] = useState(false); 
       const [switchAge, setSwitchAge] = useState(65);
       const [plan2, setPlan2] = useState('vPrime');
       const [ded2, setDed2] = useState(0);
@@ -498,7 +498,6 @@
           let roundedG = Math.round(g * 1000) / 1000; 
           let firstYearW = 0;
           
-          // 永久啟用保守模式：確保提取額 ≥ 保費
           let maxRequiredW0 = 0;
           if (roundedG <= 0 || isNaN(roundedG)) roundedG = 0;
           for(let a = currStart; a <= currEnd; a++) {
@@ -600,7 +599,6 @@
 
         return (
           <div className="w-full h-full flex flex-col relative px-6 pb-4">
-            
             <div className="w-full flex justify-start pb-2 shrink-0 pt-2">
                 <button onClick={() => setCurrentStep(3)} className="text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1f2b] border border-[#d4af37]/30 hover:border-[#d4af37]">
                     ← 返回修改
@@ -608,7 +606,6 @@
             </div>
 
             <div className="flex-1 w-full bg-[#fdfbf7] relative flex flex-col font-sans border-2 border-[#d4af37]/30 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in duration-500">
-
                 <div className="h-4 bg-gradient-to-r from-[#111] via-[#d4af37] to-[#111] w-full shrink-0"></div>
 
                 <div className="flex flex-col items-center justify-center pt-8 pb-4 shrink-0">
@@ -620,7 +617,6 @@
                    </h1>
                    <p className="text-xl text-slate-600 mt-3 font-bold tracking-wide">只需投入短期儲蓄，如果想 {startAge} 歲起由紅利代繳終身醫療保費</p>
                    
-                   {/* 醫療計劃顯示區塊 */}
                    <div className="mt-5 flex flex-wrap justify-center items-center gap-2 text-sm z-10">
                         <div className="bg-slate-800 text-[#d4af37] px-4 py-2 rounded-xl border border-slate-700 shadow-md flex items-center gap-2">
                             <HeartPulse className="w-4 h-4" />
@@ -628,13 +624,13 @@
                             <span className="text-white">{plan1Display}</span>
                         </div>
                         {enableSwitch && (
-                            <>
+                            <React.Fragment>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-400 mx-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                 <div className="bg-slate-800 text-[#d4af37] px-4 py-2 rounded-xl border border-slate-700 shadow-md flex items-center gap-2">
                                     <span className="font-bold">{switchAge} 歲轉換為：</span>
                                     <span className="text-white">{plan2Display}</span>
                                 </div>
-                            </>
+                            </React.Fragment>
                         )}
                    </div>
                 </div>
@@ -670,7 +666,7 @@
 
                 <div className="flex-1 w-[92%] max-w-7xl mx-auto flex items-stretch justify-center gap-6 py-8 min-h-0">
                     
-                    {/* 卡片 1 (鉑金藍 - 淺色尊貴版) */}
+                    {/* 卡片 1 (鉑金藍) */}
                     <div className="flex-1 bg-gradient-to-b from-sky-50 to-white border border-sky-200/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
                         <div className="bg-gradient-to-r from-sky-700 via-sky-800 to-sky-700 text-white text-center py-4 font-black text-xl tracking-widest border-b border-sky-200/50 shadow-md backdrop-blur-sm">
                             STEP 1: 建立儲備
@@ -696,7 +692,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
 
-                    {/* 卡片 2 (翡翠綠 - 淺色尊貴版) */}
+                    {/* 卡片 2 (翡翠綠) */}
                     <div className="flex-1 bg-gradient-to-b from-emerald-50/80 to-white border border-emerald-200/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
                         <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-600 text-white text-center py-4 font-black text-xl tracking-widest border-b border-emerald-200/50 shadow-md backdrop-blur-sm">
                             STEP 2: 支付保費
@@ -722,7 +718,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
 
-                    {/* 卡片 3 (香檳金 - 淺色尊貴版) */}
+                    {/* 卡片 3 (香檳金) */}
                     <div className="flex-1 bg-gradient-to-b from-amber-50/50 to-white border border-[#d4af37]/30 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col relative overflow-hidden">
                         <div className="bg-gradient-to-r from-[#c5a059] via-[#aa8222] to-[#c5a059] text-white text-center py-4 font-black text-xl tracking-widest border-b border-[#d4af37]/30 shadow-md backdrop-blur-sm">
                             STEP 3: 財富傳承
@@ -985,7 +981,7 @@
                               <input type="checkbox" checked={enableSwitch} onChange={() => setEnableSwitch(!enableSwitch)} className="accent-[#d4af37] w-5 h-5 lg:w-4 lg:h-4 cursor-pointer" />
                             </div>
                             {enableSwitch ? (
-                              <>
+                              <React.Fragment>
                                 <div className="flex items-center gap-3 lg:gap-2 mb-4 lg:mb-3">
                                   <input type="range" min={0} max={coverageTill - 1} value={switchAge} onChange={(e) => setSwitchAge(parseInt(e.target.value))} className="flex-1 accent-[#d4af37]" />
                                   <span className="bg-[#d4af37]/10 text-[#f3e5ab] font-bold rounded px-2 py-1 border border-[#d4af37]/40 text-sm w-12 text-center">{switchAge}</span>
@@ -1021,7 +1017,7 @@
                                     )}
                                   </div>
                                 )}
-                              </>
+                              </React.Fragment>
                             ) : (
                               <div className="w-full bg-slate-800/50 text-slate-500 rounded px-2 py-2 lg:py-1.5 text-sm border border-[#d4af37]/20 text-center mt-2">N/A</div>
                             )}
@@ -1087,10 +1083,10 @@
                             </div>
                          </div>
                       </div>
-                      <div className="col-span-12 lg:col-span-6 bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg relative min-h-[350px] lg:min-h-0 flex flex-col">
+                      <div className="col-span-12 lg:col-span-6 bg-[#0f141e] rounded-xl p-4 border border-[#d4af37]/30 shadow-lg relative flex flex-col">
                         <h2 className="text-lg font-bold text-center text-[#d4af37] mb-2">預期醫療保費通脹曲線</h2>
-                        <div className="flex-1 w-full relative">
-                          <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
+                        <div className="w-full h-[300px] lg:h-[500px]">
+                          <ResponsiveContainer width="100%" height="100%">
                             <ComposedChart data={simulationData.chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
                               <XAxis dataKey="age" stroke="#a8b8d0" tick={{ fill: '#a8b8d0', fontSize: 12 }} />
@@ -1284,12 +1280,12 @@
                                     <span><span className="text-[#d4af37] font-bold">現時計劃：</span><span className="text-white">{plan1Display}</span></span>
                                 </div>
                                 {enableSwitch && (
-                                    <>
+                                    <React.Fragment>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                         <div className="bg-[#1a1f2b] text-[#a8b8d0] px-3 py-2 rounded-lg border border-[#d4af37]/20 flex items-center gap-2 shadow-inner">
                                             <span><span className="text-[#d4af37] font-bold">{switchAge}歲轉換為：</span><span className="text-white">{plan2Display}</span></span>
                                         </div>
-                                    </>
+                                    </React.Fragment>
                                 )}
                             </div>
                         </div>
@@ -1305,7 +1301,7 @@
                         </div>
                     </div>
     
-                    <div className="flex-1 w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-2 lg:p-6 shadow-inner relative min-h-[450px] lg:min-h-0 flex flex-col">
+                    <div className="w-full bg-[#0a0d14] rounded-2xl border border-white/5 p-2 lg:p-6 shadow-inner h-[450px] lg:h-[600px] mt-4 flex flex-col relative">
                         <div className="flex-1 w-full relative">
                           <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
                               <ComposedChart data={simulationData.chartData} margin={{ top: 20, right: 10, left: 0, bottom: 10 }}>
